@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TravelMate · Your Personal AI Travel Companion</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Leaflet.js Interactive Maps CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Custom TravelMate Styling -->
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="bg-[#F4F6F9] text-slate-800 antialiased font-sans flex min-h-screen">
+
+  <!-- ========================================================================= -->
+  <!-- LEFT SIDEBAR NAVIGATION (Matching TravelMate Screenshot) -->
+  <!-- ========================================================================= -->
+  <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 sticky top-0 h-screen overflow-y-auto z-30">
+    <div class="p-6">
+      <!-- TravelMate Brand Logo -->
+      <div class="flex items-center gap-3 mb-8 cursor-pointer" onclick="switchNav('home')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-sky-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+          <i class="fa-solid fa-compass text-xl"></i>
+        </div>
+        <span class="text-2xl font-bold tracking-tight text-slate-900 flex items-center">
+          Travel<span class="text-brand-600 font-extrabold">Mate</span>
+        </span>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="space-y-1.5" id="sidebar-nav">
+        <a href="javascript:void(0)" onclick="switchNav('home')" id="nav-home" class="nav-item active flex items-center gap-3.5 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-150">
+          <i class="fa-solid fa-house text-lg w-5 text-center"></i>
+          <span>Home</span>
+        </a>
+        <a href="javascript:void(0)" onclick="switchNav('plan')" id="nav-plan" class="nav-item flex items-center gap-3.5 px-4 py-3 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-all">
+          <i class="fa-solid fa-route text-lg w-5 text-center text-slate-400"></i>
+          <span>Plan Trip</span>
+        </a>
+        <a href="javascript:void(0)" onclick="switchNav('mytrips')" id="nav-mytrips" class="nav-item flex items-center gap-3.5 px-4 py-3 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-all">
+          <i class="fa-solid fa-briefcase text-lg w-5 text-center text-slate-400"></i>
+          <span>My Trips</span>
+        </a>
+        <a href="javascript:void(0)" onclick="switchNav('explore')" id="nav-explore" class="nav-item flex items-center gap-3.5 px-4 py-3 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-all">
+          <i class="fa-solid fa-compass text-lg w-5 text-center text-slate-400"></i>
+          <span>Explore</span>
+        </a>
+        <a href="javascript:void(0)" onclick="switchNav('groups')" id="nav-groups" class="nav-item flex items-center gap-3.5 px-4 py-3 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-all">
+          <i class="fa-solid fa-user-group text-lg w-5 text-center text-slate-400"></i>
+          <span class="flex-1">Groups</span>
+          <span class="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full">New</span>
+        </a>
+        <a href="javascript:void(0)" onclick="switchNav('expenses')" id="nav-expenses" class="nav-item flex items-center gap-3.5 px-4 py-3 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-all">
+          <i class="fa-solid fa-receipt text-lg w-5 text-center text-slate-400"></i>
+          <span>Expenses</span>
+        </a>
+        <a href="javascript:void(0)" onclick="switchNav('assistant')" id="nav-assistant" class="nav-item flex items-center gap-3.5 px-4 py-3 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-all">
+          <i class="fa-solid fa-robot text-lg w-5 text-center text-slate-400"></i>
+          <span>Travel Assistant</span>
+        </a>
+        <a href="javascript:void(0)" onclick="switchNav('safety')" id="nav-safety" class="nav-item flex items-center gap-3.5 px-4 py-3 rounded-xl font-semibold text-sm text-slate-600 hover:bg-slate-50 transition-all">
+          <i class="fa-solid fa-shield-halved text-lg w-5 text-center text-slate-400"></i>
+          <span>Safety & Alerts</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Bottom Promo Banner Card -->
+    <div class="p-6">
+      <div class="relative rounded-2xl overflow-hidden shadow-sm group cursor-pointer border border-slate-100">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=500&q=80" alt="Explore" class="w-full h-36 object-cover brightness-75 group-hover:scale-105 transition duration-300">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent p-4 flex flex-col justify-end">
+          <h4 class="text-white font-bold text-sm leading-snug">Explore the World Smarter</h4>
+          <p class="text-slate-300 text-[11px] mt-0.5">AI-powered travel planning for every journey.</p>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center justify-between text-xs text-slate-400 px-1">
+        <span>© TravelMate AI</span>
+        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Multi-Agent v2.0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN CONTENT CONTAINER -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 p-8 overflow-y-auto max-w-[1600px] mx-auto w-full">
+
+    <!-- HERO SEARCH & PROMO BANNER -->
+    <section class="relative rounded-3xl overflow-hidden shadow-lg mb-8 min-h-[310px] flex flex-col justify-between p-8 md:p-10 text-white bg-slate-900">
+      <!-- Background scenic mountain landscape (Switzerland alpine backdrop) -->
+      <img id="hero-banner-img" src="https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1600&q=85" alt="Scenic Alps" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay">
+      <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/60 to-transparent"></div>
+
+      <!-- Banner Header Copy -->
+      <div class="relative z-10 max-w-2xl">
+        <span class="text-xs font-extrabold uppercase tracking-widest text-sky-300 drop-shadow">DISCOVER · PLAN · EXPLORE · ADAPT</span>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight mt-2 drop-shadow-md">
+          Your Personal <br><span class="text-sky-300">AI Travel Companion</span>
+        </h1>
+        <p class="text-slate-200 text-sm md:text-base mt-3 max-w-xl font-normal leading-relaxed">
+          Plan smarter. Travel better. Experience more. Dynamic real-time adaptation for weather, crowds, and budgets.
+        </p>
+      </div>
+
+      <!-- FLOATING SEARCH BAR (From, Destination, Dates, Travelers, Plan Button) -->
+      <div class="relative z-10 mt-6 bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 shadow-xl border border-white/40 text-slate-800">
+        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-3 items-center">
+          
+          <!-- 1. Current Place (Origin) -->
+          <div class="lg:col-span-3 flex items-center gap-3 px-3 py-2 bg-slate-50/80 rounded-xl border border-slate-200/80 hover:border-brand-500 transition">
+            <i class="fa-solid fa-location-crosshairs text-brand-600 text-lg"></i>
+            <div class="flex-1">
+              <label class="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">From (Current Place)</label>
+              <select id="origin-select" class="w-full bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer">
+                <optgroup label="India Hubs">
+                  <option value="Hyderabad, Telangana, India" selected>Hyderabad, Telangana</option>
+                  <option value="Visakhapatnam, Andhra Pradesh, India">Visakhapatnam (Vizag)</option>
+                  <option value="Mumbai, Maharashtra, India">Mumbai</option>
+                  <option value="New Delhi, India">New Delhi</option>
+                  <option value="Bengaluru, Karnataka, India">Bengaluru (Bangalore)</option>
+                  <option value="Chennai, Tamil Nadu, India">Chennai</option>
+                  <option value="Kolkata, West Bengal, India">Kolkata</option>
+                  <option value="Pune, Maharashtra, India">Pune</option>
+                  <option value="Ahmedabad, Gujarat, India">Ahmedabad</option>
+                  <option value="Kochi, Kerala, India">Kochi (Cochin)</option>
+                  <option value="Jaipur, Rajasthan, India">Jaipur</option>
+                  <option value="Chandigarh, India">Chandigarh</option>
+                  <option value="Goa, India">Goa</option>
+                </optgroup>
+                <optgroup label="International Hubs">
+                  <option value="London, United Kingdom">London, UK</option>
+                  <option value="Dubai, United Arab Emirates">Dubai, UAE</option>
+                  <option value="Singapore">Singapore</option>
+                  <option value="New York City, USA">New York, USA</option>
+                  <option value="Paris, France">Paris, France</option>
+                  <option value="Tokyo, Japan">Tokyo, Japan</option>
+                  <option value="Zurich, Switzerland">Zurich, Switzerland</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <!-- 2. Destination Place (Where to?) -->
+          <div class="lg:col-span-4 flex items-center gap-3 px-3 py-2 bg-slate-50/80 rounded-xl border border-slate-200/80 hover:border-brand-500 transition">
+            <i class="fa-solid fa-location-dot text-rose-500 text-lg"></i>
+            <div class="flex-1">
+              <label class="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Where to?</label>
+              <select id="destination-select" class="w-full bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer">
+                <optgroup label="🌟 International Tours">
+                  <option value="Switzerland (Zurich, Lucerne, Interlaken, Grindelwald)" selected>Switzerland (Zurich, Lucerne, Interlaken)</option>
+                  <option value="Paris, France">Paris, France (Eiffel Tower & Louvre)</option>
+                  <option value="Tokyo, Japan">Tokyo & Kyoto, Japan (Shibuya & Senso-ji)</option>
+                  <option value="Dubai, United Arab Emirates">Dubai, UAE (Burj Khalifa & Desert Safari)</option>
+                  <option value="Rome, Italy">Rome, Italy (Colosseum & Vatican)</option>
+                  <option value="London, United Kingdom">London, UK (Big Ben & Thames)</option>
+                  <option value="Singapore">Singapore (Marina Bay Sands & Sentosa)</option>
+                  <option value="Bali, Indonesia">Bali, Indonesia (Ubud & Beaches)</option>
+                  <option value="Bangkok, Thailand">Bangkok & Phuket, Thailand</option>
+                  <option value="New York City, USA">New York City, USA</option>
+                  <option value="Barcelona, Spain">Barcelona, Spain (Sagrada Familia)</option>
+                  <option value="Maldives">Maldives (Overwater Bungalows)</option>
+                </optgroup>
+                <optgroup label="🇮🇳 All Tourist Places Across India">
+                  <option value="Hyderabad, Telangana">Hyderabad (Charminar, Golconda, Biryani)</option>
+                  <option value="Visakhapatnam, Andhra Pradesh">Visakhapatnam / Vizag (INS Kursura & Araku)</option>
+                  <option value="Kerala (Kochi, Alappuzha, Munnar), India">Kerala (Backwaters, Houseboat, Tea Hills)</option>
+                  <option value="Goa, India">Goa (Baga Beach, Dudhsagar & Forts)</option>
+                  <option value="Delhi, Agra & Taj Mahal, India">Delhi & Agra (Taj Mahal, Red Fort, Qutub)</option>
+                  <option value="Jaipur & Udaipur, Rajasthan">Jaipur & Udaipur (Amber Fort & Lake Pichola)</option>
+                  <option value="Bengaluru & Mysore, Karnataka">Bengaluru & Mysore Palace</option>
+                  <option value="Chennai & Mahabalipuram, Tamil Nadu">Chennai & Shore Temple Mahabalipuram</option>
+                  <option value="Mumbai, Maharashtra">Mumbai (Gateway of India, Marine Drive)</option>
+                  <option value="Varanasi, Uttar Pradesh">Varanasi (Kashi Vishwanath & Ganga Aarti)</option>
+                  <option value="Kashmir & Srinagar, India">Kashmir (Srinagar, Dal Lake & Gulmarg)</option>
+                  <option value="Manali & Shimla, Himachal Pradesh">Manali & Solang Valley (Atal Tunnel)</option>
+                  <option value="Leh Ladakh, India">Leh Ladakh (Pangong Lake & Khardung La)</option>
+                  <option value="Ooty & Nilgiris, Tamil Nadu">Ooty & Nilgiris (Toy Train & Botanical Gardens)</option>
+                  <option value="Kolkata & Darjeeling, West Bengal">Kolkata & Darjeeling (Tea Estates & Kanchenjunga)</option>
+                  <option value="Amritsar, Punjab">Amritsar (Golden Temple & Wagah Border)</option>
+                  <option value="Rishikesh & Haridwar, Uttarakhand">Rishikesh & Haridwar (Ganga Rafting)</option>
+                  <option value="Tirupati, Andhra Pradesh">Tirupati (Sri Venkateswara Balaji Temple)</option>
+                  <option value="Pondicherry, India">Pondicherry & Auroville</option>
+                  <option value="Wayanad, Kerala">Wayanad (Banasura Dam & Chembra Peak)</option>
+                  <option value="Andaman & Nicobar Islands, India">Andaman Islands (Radhanagar Beach & Havelock)</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <!-- 3. Dates Selector -->
+          <div class="lg:col-span-2 flex items-center gap-3 px-3 py-2 bg-slate-50/80 rounded-xl border border-slate-200/80 hover:border-brand-500 transition">
+            <i class="fa-regular fa-calendar-days text-slate-500 text-lg"></i>
+            <div class="flex-1">
+              <label class="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Duration / Dates</label>
+              <select id="duration-select" class="w-full bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer">
+                <option value="3">3 Days (Long Weekend)</option>
+                <option value="5" selected>5 Days (Standard)</option>
+                <option value="7">7 Days (Full Week)</option>
+                <option value="10">10 Days (Grand Tour)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 4. Travelers / Group Members Input -->
+          <div class="lg:col-span-3 flex items-center gap-2">
+            <div class="flex-1 flex items-center gap-2 px-3 py-2 bg-slate-50/80 rounded-xl border border-slate-200/80 hover:border-brand-500 transition">
+              <i class="fa-solid fa-users text-slate-500 text-lg"></i>
+              <div class="flex-1">
+                <label class="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">Travelers</label>
+                <select id="travelers-count-select" class="w-full bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer" onchange="onTravelerCountChanged()">
+                  <option value="1">1 Solo Adult</option>
+                  <option value="2" selected>2 Adults (Couple)</option>
+                  <option value="3">3 Members</option>
+                  <option value="4">4 Members (Friends / Family)</option>
+                  <option value="5">5 Members</option>
+                  <option value="6">6 Members (Group)</option>
+                  <option value="8">8 Members (Large Group)</option>
+                  <option value="10">10+ Members (College Group)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Submit Plan Button -->
+            <button onclick="executeAIPlanning()" class="px-5 py-3.5 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md shadow-brand-600/30 transition flex items-center justify-center gap-2 whitespace-nowrap">
+              <span>Plan with AI</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- TRAVELER TYPE CARDS ROW (Matching Screenshot) -->
+    <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+      <!-- 1. Solo Travel -->
+      <div onclick="selectTravelerType('solo')" id="card-solo" class="traveler-card bg-white p-4 rounded-2xl border border-slate-200/80 hover:border-brand-500 hover:shadow-md transition text-center cursor-pointer group">
+        <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mx-auto mb-2.5 group-hover:scale-110 transition">
+          <i class="fa-solid fa-person-walking text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-800 text-sm">Solo Travel</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Adventure at your own pace</p>
+      </div>
+
+      <!-- 2. Couples -->
+      <div onclick="selectTravelerType('couple')" id="card-couple" class="traveler-card active bg-white p-4 rounded-2xl border-2 border-brand-500 shadow-md text-center cursor-pointer group">
+        <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center mx-auto mb-2.5 group-hover:scale-110 transition">
+          <i class="fa-solid fa-heart text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-800 text-sm">Couples</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Romantic getaways</p>
+      </div>
+
+      <!-- 3. Family -->
+      <div onclick="selectTravelerType('family')" id="card-family" class="traveler-card bg-white p-4 rounded-2xl border border-slate-200/80 hover:border-brand-500 hover:shadow-md transition text-center cursor-pointer group">
+        <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-2.5 group-hover:scale-110 transition">
+          <i class="fa-solid fa-people-roof text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-800 text-sm">Family</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Fun for all ages</p>
+      </div>
+
+      <!-- 4. Friends -->
+      <div onclick="selectTravelerType('friends')" id="card-friends" class="traveler-card bg-white p-4 rounded-2xl border border-slate-200/80 hover:border-brand-500 hover:shadow-md transition text-center cursor-pointer group">
+        <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-2.5 group-hover:scale-110 transition">
+          <i class="fa-solid fa-people-group text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-800 text-sm">Friends</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Group adventures</p>
+      </div>
+
+      <!-- 5. College Groups -->
+      <div onclick="selectTravelerType('college_group')" id="card-college_group" class="traveler-card bg-white p-4 rounded-2xl border border-slate-200/80 hover:border-brand-500 hover:shadow-md transition text-center cursor-pointer group">
+        <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mx-auto mb-2.5 group-hover:scale-110 transition">
+          <i class="fa-solid fa-graduation-cap text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-800 text-sm">College Groups</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Explore together</p>
+      </div>
+
+      <!-- 6. Senior Citizens -->
+      <div onclick="selectTravelerType('seniors')" id="card-seniors" class="traveler-card bg-white p-4 rounded-2xl border border-slate-200/80 hover:border-brand-500 hover:shadow-md transition text-center cursor-pointer group">
+        <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-2.5 group-hover:scale-110 transition">
+          <i class="fa-solid fa-person-cane text-xl"></i>
+        </div>
+        <h3 class="font-bold text-slate-800 text-sm">Senior Citizens</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Comfortable & safe travel</p>
+      </div>
+    </section>
+
+    <!-- MAIN TWO-COLUMN CONTENT GRID (Timeline Left, Widgets Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- ================================================================= -->
+      <!-- LEFT / CENTER COLUMN: TRIP TIMELINE & RECOMMENDATIONS (7 Cols) -->
+      <!-- ================================================================= -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- Trip Summary Card -->
+        <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+            <div>
+              <h2 id="trip-title" class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Your Trip to Switzerland</h2>
+              <p id="trip-subtitle" class="text-slate-500 text-xs md:text-sm mt-1 font-medium flex items-center gap-2">
+                <span>5 Days</span> · <span>2 Adults</span> · <span class="text-brand-600 font-semibold">Nature & Sightseeing</span>
+              </p>
+            </div>
+            <button onclick="openPreferencesModal()" class="px-4 py-2 border border-slate-200 hover:border-brand-500 hover:bg-brand-50 text-slate-700 hover:text-brand-600 rounded-xl text-xs font-bold transition flex items-center gap-2">
+              <i class="fa-solid fa-sliders"></i>
+              <span>Edit Preferences</span>
+            </button>
+          </div>
+
+          <!-- Day Navigation Tabs (Day 1 Zurich, Day 2 Lucerne...) -->
+          <div class="flex items-center gap-2 py-4 border-b border-slate-100 overflow-x-auto no-scrollbar" id="days-tabs-bar">
+            <!-- Dynamically populated via JS -->
+          </div>
+
+          <!-- Vertical Activity Timeline -->
+          <div class="pt-6">
+            <div id="timeline-container" class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-3 before:bottom-3 before:w-[2px] before:bg-slate-200">
+              <!-- Dynamically populated via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- DAY 1 NEARBY LODGES & HOTELS (WITH ROOM SHARING & REDIRECT BOOKING) -->
+        <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm" id="hotels-main-section">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-brand-50 text-brand-700 border border-brand-200">
+                  <i class="fa-solid fa-moon mr-1"></i>Day 1 Stay & Lodging
+                </span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                  <i class="fa-solid fa-people-arrows mr-1"></i>Room Sharing Enabled
+                </span>
+              </div>
+              <h3 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-hotel text-brand-600"></i>
+                <span id="hotels-section-heading">Verified Lodges & Hotels Near Day 1 Hub</span>
+              </h3>
+              <p id="hotels-section-subheading" class="text-xs text-slate-500 mt-0.5">
+                Handpicked budget lodges, heritage stays & hostels located near Day 1 staying points with per-person sharing prices
+              </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5">
+                <i class="fa-solid fa-shield-check text-emerald-600"></i> Verified Lodges
+              </span>
+            </div>
+          </div>
+
+          <!-- Dynamic Lodges / Hotels List -->
+          <div id="day1-hotels-container" class="space-y-4">
+            
+            <!-- Default Lodge 1: Zurich Old Town Alpine Riverside Lodge -->
+            <div class="bg-white hover:bg-slate-50/70 p-4 md:p-5 rounded-2xl border border-slate-200/80 hover:border-brand-300 transition shadow-sm hover:shadow-md flex flex-col md:flex-row gap-5 items-start group">
+              <div class="w-full md:w-56 h-44 shrink-0 relative rounded-2xl overflow-hidden shadow-sm">
+                <img src="https://images.unsplash.com/photo-1515488764276-beab7607c1e6?auto=format&fit=crop&w=600&q=80" alt="Zurich Old Town Alpine Riverside Lodge" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-extrabold uppercase tracking-wider">
+                  Historic Swiss Lodge
+                </span>
+              </div>
+              <div class="flex-1 min-w-0 w-full space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h4 class="font-extrabold text-slate-900 text-base leading-snug">Zurich Old Town Alpine Riverside Lodge</h4>
+                      <span class="px-2 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-md flex items-center gap-1 border border-amber-200">
+                        <i class="fa-solid fa-star text-[9px]"></i> 4.8 (1,420 reviews)
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5 font-medium">
+                      <i class="fa-solid fa-location-dot text-rose-500 text-[11px]"></i>
+                      <span class="text-slate-700 font-semibold">200m from Zurich Central Station & Limmat</span> · <span class="text-brand-600 font-semibold">Old Town & Lake Zurich (Day 1 Hub)</span>
+                    </p>
+                  </div>
+                  <div class="text-left sm:text-right shrink-0">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Starting Rate</span>
+                    <span class="text-lg font-black text-slate-900">₹7,800</span>
+                    <span class="text-[10px] text-slate-400 block font-medium">/ room / night</span>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-semibold">Swiss Fondue Breakfast</span>
+                  <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-semibold">Free City Transit Pass</span>
+                  <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-semibold">High-Speed WiFi</span>
+                  <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-semibold">Luggage Storage</span>
+                </div>
+
+                <!-- Room Sharing Box -->
+                <div class="pt-1">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] font-bold uppercase text-slate-400 tracking-wider flex items-center gap-1">
+                      <i class="fa-solid fa-bed text-brand-600"></i>Room Sharing & Lodging Options:
+                    </span>
+                    <span class="text-[10px] font-extrabold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">Cost Per Person</span>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs hover:border-brand-300 hover:bg-brand-50/30 transition">
+                      <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                        <div>
+                          <strong class="text-slate-800 text-[11px] block">4-Bed Swiss Bunk Dorm Bed</strong>
+                          <span class="text-[10px] text-slate-400 font-medium">Swiss pine wood bunk with privacy pod & power sockets</span>
+                        </div>
+                      </div>
+                      <div class="text-right shrink-0">
+                        <span class="text-emerald-700 font-extrabold text-xs">₹2,100</span>
+                        <span class="text-[9px] text-slate-400 block font-semibold">/ person</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs hover:border-brand-300 hover:bg-brand-50/30 transition">
+                      <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                        <div>
+                          <strong class="text-slate-800 text-[11px] block">2-Sharing Alpine Twin Room</strong>
+                          <span class="text-[10px] text-slate-400 font-medium">Twin beds with private en-suite shower & city view</span>
+                        </div>
+                      </div>
+                      <div class="text-right shrink-0">
+                        <span class="text-emerald-700 font-extrabold text-xs">₹3,900</span>
+                        <span class="text-[9px] text-slate-400 block font-semibold">/ person</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap items-center gap-2.5 pt-2">
+                  <button onclick="openHotelBookingModal('swi-lodge-1')" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md shadow-brand-600/20 transition flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Book Stay & Select Sharing</span>
+                  </button>
+                  <a href="https://www.booking.com/searchresults.html?ss=Zurich+Old+Town+Alpine+Riverside+Lodge+Switzerland" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-2">
+                    <span>Partner Booking Portal</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[11px] text-slate-500"></i>
+                  </a>
+                  <a href="https://www.google.com/travel/hotels?q=Zurich+Old+Town+Alpine+Riverside+Lodge+Switzerland" target="_blank" rel="noopener noreferrer" class="px-3 py-2.5 text-slate-500 hover:text-slate-800 text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-brands fa-google text-[11px] text-blue-500"></i>
+                    <span>Compare Rates</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Default Lodge 2: Interlaken Valley Backpacker Chalet Lodge -->
+            <div class="bg-white hover:bg-slate-50/70 p-4 md:p-5 rounded-2xl border border-slate-200/80 hover:border-brand-300 transition shadow-sm hover:shadow-md flex flex-col md:flex-row gap-5 items-start group">
+              <div class="w-full md:w-56 h-44 shrink-0 relative rounded-2xl overflow-hidden shadow-sm">
+                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80" alt="Interlaken Valley Backpacker Chalet Lodge" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-extrabold uppercase tracking-wider">
+                  Alpine Mountain Chalet
+                </span>
+              </div>
+              <div class="flex-1 min-w-0 w-full space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h4 class="font-extrabold text-slate-900 text-base leading-snug">Interlaken Valley Backpacker Chalet Lodge</h4>
+                      <span class="px-2 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-md flex items-center gap-1 border border-amber-200">
+                        <i class="fa-solid fa-star text-[9px]"></i> 4.9 (1,850 reviews)
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5 font-medium">
+                      <i class="fa-solid fa-location-dot text-rose-500 text-[11px]"></i>
+                      <span class="text-slate-700 font-semibold">350m from Interlaken Ost Railway</span> · <span class="text-brand-600 font-semibold">Harder Kulm & Jungfrau View</span>
+                    </p>
+                  </div>
+                  <div class="text-left sm:text-right shrink-0">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Starting Rate</span>
+                    <span class="text-lg font-black text-slate-900">₹6,500</span>
+                    <span class="text-[10px] text-slate-400 block font-medium">/ room / night</span>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-semibold">Jungfrau Glacier View</span>
+                  <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-semibold">Guest Kitchen</span>
+                  <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-semibold">Outdoor Hot Tub</span>
+                  <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-semibold">Bicycle Rental</span>
+                </div>
+
+                <!-- Room Sharing Box -->
+                <div class="pt-1">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] font-bold uppercase text-slate-400 tracking-wider flex items-center gap-1">
+                      <i class="fa-solid fa-bed text-brand-600"></i>Room Sharing & Lodging Options:
+                    </span>
+                    <span class="text-[10px] font-extrabold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md">Cost Per Person</span>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs hover:border-brand-300 hover:bg-brand-50/30 transition">
+                      <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                        <div>
+                          <strong class="text-slate-800 text-[11px] block">6-Bed Chalet Dorm Bed</strong>
+                          <span class="text-[10px] text-slate-400 font-medium">Heated wooden chalet dorm with breathtaking alpine panorama</span>
+                        </div>
+                      </div>
+                      <div class="text-right shrink-0">
+                        <span class="text-emerald-700 font-extrabold text-xs">₹1,650</span>
+                        <span class="text-[9px] text-slate-400 block font-semibold">/ person</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs hover:border-brand-300 hover:bg-brand-50/30 transition">
+                      <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                        <div>
+                          <strong class="text-slate-800 text-[11px] block">2-Sharing Private Chalet Room</strong>
+                          <span class="text-[10px] text-slate-400 font-medium">Private room with balcony facing snow-capped Eiger peak</span>
+                        </div>
+                      </div>
+                      <div class="text-right shrink-0">
+                        <span class="text-emerald-700 font-extrabold text-xs">₹3,250</span>
+                        <span class="text-[9px] text-slate-400 block font-semibold">/ person</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap items-center gap-2.5 pt-2">
+                  <button onclick="openHotelBookingModal('swi-lodge-2')" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md shadow-brand-600/20 transition flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Book Stay & Select Sharing</span>
+                  </button>
+                  <a href="https://www.booking.com/searchresults.html?ss=Interlaken+Valley+Backpacker+Chalet+Lodge+Switzerland" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-2">
+                    <span>Partner Booking Portal</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[11px] text-slate-500"></i>
+                  </a>
+                  <a href="https://www.google.com/travel/hotels?q=Interlaken+Valley+Backpacker+Chalet+Lodge+Switzerland" target="_blank" rel="noopener noreferrer" class="px-3 py-2.5 text-slate-500 hover:text-slate-800 text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-brands fa-google text-[11px] text-blue-500"></i>
+                    <span>Compare Rates</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Smart Recommendations Section (Matching Screenshot) -->
+        <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">Smart Recommendations</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Based on your interests, budget and real-time conditions</p>
+            </div>
+            <a href="javascript:void(0)" onclick="viewMoreRecommendations()" class="text-xs font-bold text-brand-600 hover:underline">See More</a>
+          </div>
+
+          <!-- Recommendations Cards Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5" id="recommendations-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- RIGHT COLUMN: WEATHER, DISRUPTION, MAP, BUDGET, ASSISTANT (5 Cols) -->
+      <!-- ================================================================= -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <!-- 1. Destination Weather Widget (Matching Screenshot) -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 id="weather-location" class="font-bold text-slate-800 text-sm">Zurich, Switzerland</h4>
+              <p id="weather-date" class="text-xs text-slate-400 font-medium">Mon, 15 Oct</p>
+              <div class="flex items-baseline gap-2 mt-2">
+                <span id="weather-temp" class="text-3xl font-extrabold text-slate-900">18°C</span>
+                <span id="weather-condition" class="text-xs font-semibold text-slate-500">Partly Cloudy</span>
+              </div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-2xl shadow-inner">
+              <i class="fa-solid fa-cloud-sun"></i>
+            </div>
+          </div>
+          <div class="mt-4 pt-3.5 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50/70 p-2.5 rounded-xl">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span id="weather-verdict">Good time to explore! Low rain chance. Pleasant temperature for sightseeing.</span>
+          </div>
+        </div>
+
+        <!-- 2. Real-Time Disruption Weather Alert (Interactive Replanner Trigger) -->
+        <div onclick="triggerAdaptiveReplanning()" id="disruption-banner" class="bg-gradient-to-r from-rose-50 to-amber-50 border border-rose-200/80 rounded-3xl p-5 shadow-sm cursor-pointer hover:shadow-md hover:border-rose-300 transition group">
+          <div class="flex items-start gap-3.5">
+            <div class="w-9 h-9 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-rose-500/20">
+              <i class="fa-solid fa-triangle-exclamation text-base"></i>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold text-rose-700 uppercase tracking-wider">Weather Alert</span>
+                <i class="fa-solid fa-chevron-right text-xs text-rose-400 group-hover:translate-x-1 transition"></i>
+              </div>
+              <p id="alert-text" class="text-xs font-semibold text-slate-700 mt-1 leading-snug">
+                Light rain expected on Day 3 (Interlaken). Tap to automatically recalculate with indoor cultural venues.
+              </p>
+              <span class="inline-block mt-2 text-[10px] font-bold text-rose-600 bg-rose-100/80 px-2 py-0.5 rounded-md">
+                ⚡ Real-Time Replanning Agent Ready
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Interactive Map & Distance Tracker (Leaflet.js) -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm overflow-hidden">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-map-location-dot text-brand-600"></i>
+                <span>Journey Route & Distance</span>
+              </h4>
+              <p id="route-distance-summary" class="text-[11px] text-slate-500 font-medium">Calculating geodesic distance...</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <select id="map-tile-select" class="text-[11px] font-semibold bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-slate-600 focus:outline-none" onchange="toggleMapLayer()">
+                <option value="streets">Street View</option>
+                <option value="satellite">Satellite View</option>
+              </select>
+              <button onclick="zoomToFullMap()" class="px-2.5 py-1 text-[11px] font-bold bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-lg transition">Full Map</button>
+            </div>
+          </div>
+
+          <!-- Distance Metrics Badge -->
+          <div class="grid grid-cols-2 gap-2 mb-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Total Distance</span>
+              <span id="badge-distance" class="font-extrabold text-slate-800 text-sm">6,945 km</span>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Estimated Transit</span>
+              <span id="badge-flight" class="font-bold text-brand-600 text-xs">~8h 45m Flight</span>
+            </div>
+          </div>
+
+          <!-- Leaflet Map Container -->
+          <div id="interactive-map" class="w-full h-56 rounded-2xl border border-slate-200 shadow-inner z-10"></div>
+          <p class="text-[10px] text-slate-400 mt-2 text-center">Interactive Leaflet map showing origin, destination, and day-by-day stops.</p>
+        </div>
+
+        <!-- 4. Estimated Budget Card in Indian Rupees (₹ INR) -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Estimated Budget</span>
+            <span id="total-budget-display" class="text-xl font-extrabold text-slate-900 tracking-tight">₹1,20,000</span>
+          </div>
+
+          <!-- Progress Bar (Emerald Green matching screenshot) -->
+          <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
+            <div id="budget-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 71%;"></div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mt-3 pt-2 border-t border-slate-100">
+            <span id="budget-used-text" class="text-emerald-700">₹85,000 used</span>
+            <span id="budget-remaining-text" class="text-slate-500">₹35,000 remaining</span>
+          </div>
+        </div>
+
+        <!-- 5. AI Travel Assistant Box (Chat & Voice) -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-brand-500 text-white flex items-center justify-center text-lg shadow-sm shadow-brand-500/20">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-sm">AI Travel Assistant</h4>
+                <p class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Online & Multilingual
+                </p>
+              </div>
+            </div>
+            <!-- Voice Assistant Button (Web Speech API) -->
+            <button id="voice-btn" onclick="toggleVoiceSpeech()" class="px-3 py-1.5 rounded-xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50 text-slate-700 hover:text-brand-600 text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-microphone text-brand-500"></i>
+              <span id="voice-btn-label">Voice</span>
+            </button>
+          </div>
+
+          <!-- Chat Messages Area -->
+          <div id="chat-messages" class="space-y-3 max-h-56 overflow-y-auto pr-1 text-xs mb-4">
+            <div class="bg-slate-50 border border-slate-100 p-3.5 rounded-2xl rounded-tl-sm text-slate-700 leading-relaxed">
+              👋 Hi! I'm your AI Travel Assistant. I can help you with itinerary changes, local food recommendations, language translation, and safety info. What would you like to know?
+            </div>
+          </div>
+
+          <!-- Quick Suggestion Chips (Matching Screenshot) -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 mb-3">
+            <button onclick="sendQuickPrompt('Suggest weather-safe indoor alternatives')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-[11px] font-semibold whitespace-nowrap transition">Suggest alternatives</button>
+            <button onclick="sendQuickPrompt('Recommend famous local street food and dinner dishes')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-[11px] font-semibold whitespace-nowrap transition">Find local food</button>
+            <button onclick="sendQuickPrompt('Translate common greetings and emergency phrases')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-[11px] font-semibold whitespace-nowrap transition">Translate</button>
+            <button onclick="sendQuickPrompt('What are the key safety tips and tourist helpline numbers?')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-[11px] font-semibold whitespace-nowrap transition">Safety tips</button>
+          </div>
+
+          <!-- Message Input Box -->
+          <div class="relative flex items-center">
+            <input type="text" id="chat-input" placeholder="Ask anything about your trip..." class="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 transition" onkeypress="handleChatKeyPress(event)">
+            <button onclick="submitUserChat()" class="absolute right-2 w-8 h-8 rounded-xl bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center text-xs shadow-md shadow-brand-600/30 transition">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: DYNAMIC GROUP TRAVEL PLANNING (Selecting Number of Members) -->
+  <!-- ========================================================================= -->
+  <div id="group-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-6 md:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+          <h3 class="text-xl font-extrabold text-slate-900">👥 Group Travel Planning & Expense Splitting</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Select members count, customize individual budgets in ₹ INR, and optimize group logistics.</p>
+        </div>
+        <button onclick="closeGroupModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="py-5 space-y-5">
+        <!-- Number of Members Selector -->
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-400 tracking-wider mb-2">How many members are planning this trip?</label>
+          <div class="flex items-center gap-2">
+            <input type="range" id="modal-member-count" min="2" max="10" value="4" class="flex-1 accent-brand-600 cursor-pointer" oninput="updateMemberInputsCount(this.value)">
+            <span id="modal-member-count-badge" class="px-3 py-1 bg-brand-100 text-brand-700 font-extrabold text-sm rounded-xl">4 Members</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Member Input Cards Container -->
+        <div id="dynamic-members-list" class="space-y-3">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Action Submit Button -->
+        <button onclick="submitGroupHarmonization()" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-brand-600/30 transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-people-arrows"></i>
+          <span>Harmonize Group Preferences & Split Budget in ₹ INR</span>
+        </button>
+
+        <!-- Group Results Container -->
+        <div id="group-results-area" class="hidden pt-4 border-t border-slate-100 space-y-4">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: HOTEL & LODGE BOOKING WITH ROOM SHARING & REDIRECT -->
+  <!-- ========================================================================= -->
+  <div id="hotel-booking-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span id="modal-hotel-type" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-brand-50 text-brand-700">Beachfront Lodge</span>
+            <span class="text-xs font-bold text-amber-500 flex items-center gap-1">
+              <i class="fa-solid fa-star text-[10px]"></i> <span id="modal-hotel-rating">4.8</span>
+            </span>
+          </div>
+          <h3 id="modal-hotel-name" class="text-xl font-extrabold text-slate-900 leading-snug">Baga Beach Backpacker Lodge</h3>
+          <p id="modal-hotel-location" class="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-location-dot text-rose-500 text-[11px]"></i>
+            <span>250m from Day 1 Hub</span>
+          </p>
+        </div>
+        <button onclick="closeHotelBookingModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm transition shrink-0">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div id="modal-booking-form" class="py-5 space-y-5">
+        
+        <!-- Image & Amenities Banner -->
+        <div class="relative rounded-2xl overflow-hidden h-44 bg-slate-100 border border-slate-100 shadow-inner">
+          <img id="modal-hotel-img" src="" alt="Lodge" class="w-full h-full object-cover">
+          <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs bg-slate-900/75 backdrop-blur-md px-3.5 py-2 rounded-xl">
+            <span id="modal-hotel-distance" class="font-medium"><i class="fa-solid fa-shoe-prints mr-1.5 text-sky-400"></i>Walking distance to Day 1 Stay</span>
+            <span class="text-emerald-400 font-bold"><i class="fa-solid fa-check-circle mr-1"></i>Free Cancellation</span>
+          </div>
+        </div>
+
+        <!-- 1. Select Room Sharing Type -->
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-500 tracking-wider mb-2.5">
+            <i class="fa-solid fa-bed mr-1 text-brand-600"></i>Select Room Sharing Option:
+          </label>
+          <div id="modal-sharing-options-container" class="space-y-2.5">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <!-- 2. Stay Dates & Guest Selection -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80">
+            <label class="block text-[10px] font-bold uppercase text-slate-400">Check-in / Check-out</label>
+            <div class="flex items-center gap-2 mt-1 text-xs font-bold text-slate-800">
+              <i class="fa-regular fa-calendar-check text-brand-600"></i>
+              <span id="modal-stay-dates">Day 1 Night (Trip Start)</span>
+            </div>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80">
+            <label class="block text-[10px] font-bold uppercase text-slate-400">Total Guests</label>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-xs font-bold text-slate-800" id="modal-guests-label">2 Adults</span>
+              <span class="text-[10px] text-brand-600 font-semibold bg-brand-50 px-2 py-0.5 rounded-md">Matched to Trip</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Price Breakdown Box -->
+        <div class="bg-gradient-to-r from-brand-50 to-indigo-50 border border-brand-200 rounded-2xl p-4">
+          <div class="flex items-center justify-between text-xs text-brand-900 pb-2 border-b border-brand-200/60">
+            <span id="modal-calc-label">2-Sharing (₹800 × 2 members)</span>
+            <span class="font-extrabold text-sm" id="modal-calc-total">₹1,600 / night</span>
+          </div>
+          <div class="flex items-center justify-between pt-2.5">
+            <div>
+              <span class="text-[10px] font-bold uppercase text-brand-600 block">Total Payable (Taxes Included)</span>
+              <span class="text-xl font-extrabold text-slate-900" id="modal-calc-grand-total">₹1,600</span>
+            </div>
+            <span class="text-[11px] font-semibold text-emerald-700 bg-white px-2.5 py-1 rounded-lg border border-emerald-200">
+              <i class="fa-solid fa-tags text-emerald-600 mr-1"></i>Pay at Lodge Available
+            </span>
+          </div>
+        </div>
+
+        <!-- 4. Action Booking Buttons -->
+        <div class="space-y-2 pt-2">
+          <!-- Button 1: Partner Portal Redirection (MakeMyTrip / Booking.com / Google Hotels) -->
+          <button onclick="redirectToPartnerBookingPortal()" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold text-xs rounded-2xl shadow-lg shadow-brand-600/30 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span id="modal-redirect-btn-text">Proceed to Partner Booking Page (MakeMyTrip / Google Hotels)</span>
+          </button>
+
+          <!-- Button 2: Direct Instant Confirmation -->
+          <button onclick="confirmDirectLodgeBooking()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-2xl transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-check"></i>
+            <span>Instant Lodge Reservation (Hold Room Free in ₹ INR)</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Confirmation Screen (Shown after direct reservation) -->
+      <div id="modal-booking-confirmation" class="hidden py-8 text-center space-y-4">
+        <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-2xl shadow-md">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <div>
+          <h4 class="text-xl font-extrabold text-slate-900">Room Successfully Reserved!</h4>
+          <p class="text-xs text-slate-500 mt-1">Your Day 1 stay is confirmed. An instant voucher has been issued.</p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-left text-xs space-y-2 max-w-md mx-auto">
+          <div class="flex justify-between font-bold text-slate-800">
+            <span>Booking ID:</span>
+            <span class="text-brand-600" id="conf-booking-id">BK-LODGE-77492</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>Lodge:</span>
+            <span class="font-medium" id="conf-hotel-name">Baga Beach Backpacker Lodge</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>Selected Room:</span>
+            <span class="font-medium" id="conf-room-type">2-Sharing (Twin Beds)</span>
+          </div>
+          <div class="flex justify-between text-slate-900 font-extrabold border-t border-slate-200 pt-2">
+            <span>Total Payable:</span>
+            <span class="text-emerald-700" id="conf-total-price">₹1,600</span>
+          </div>
+        </div>
+        <div class="pt-2 flex items-center justify-center gap-3">
+          <button onclick="redirectToPartnerBookingPortal()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span>Open in MakeMyTrip / Partner Site</span>
+          </button>
+          <button onclick="closeHotelBookingModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
+            Close
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Main JavaScript App -->
+  <script src="/static/app.js?v=2.3.0"></script>
+</body>
+</html>
