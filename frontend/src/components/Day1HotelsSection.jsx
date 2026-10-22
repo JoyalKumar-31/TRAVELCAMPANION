@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getHotelsForDay, getDestinationKey, getDaySpecificCity, generateBookingLinks } from '../data/destinationData';
+import { getHotelsForDay, getDestinationKey, getDaySpecificCity, generateBookingLinks, getHotelsForDestination } from '../data/destinationData';
 
 // Hub names by destination and day index for quick visual labeling
 const DAY_HUBS_DIRECTORY = {
@@ -65,6 +65,69 @@ const DAY_HUBS_DIRECTORY = {
     { day: 3, hub: "Pahalgam Betaab Valley Hub", landmarks: "Lidder Riverfront & Aru Valley Pine Forest" },
     { day: 4, hub: "Sonamarg Glacier Hub", landmarks: "Thajiwas Glacier & Sindh Valley Meadow" },
     { day: 5, hub: "Srinagar Mughal Gardens Hub", landmarks: "Nishat Bagh, Shalimar Bagh & Old City" }
+  ],
+  jaipur: [
+    { day: 1, hub: "Amber Fort & Palace Hub", landmarks: "Amber Fort, Maota Lake & Sheesh Mahal" },
+    { day: 2, hub: "Hawa Mahal & Old Pink City Hub", landmarks: "Hawa Mahal, City Palace & Jantar Mantar" },
+    { day: 3, hub: "Jal Mahal & Nahargarh Hub", landmarks: "Jal Mahal, Nahargarh Sunset & Jaigarh Fort" },
+    { day: 4, hub: "Chokhi Dhani Heritage Hub", landmarks: "Chokhi Dhani Ethnic Resort & Rajasthani Folk" },
+    { day: 5, hub: "Bapu Bazaar Cultural Hub", landmarks: "Bapu Bazaar, Albert Hall Museum & Johari Bazaar" }
+  ],
+  manali: [
+    { day: 1, hub: "Mall Road & Old Manali Hub", landmarks: "Hadimba Temple, Van Vihar & Mall Road" },
+    { day: 2, hub: "Solang Valley Adventure Hub", landmarks: "Solang Valley Ropeway, Ski Slopes & Zorbing" },
+    { day: 3, hub: "Atal Tunnel & Sissu Valley Hub", landmarks: "Atal Tunnel, Sissu Waterfall & Lahaul Valley" },
+    { day: 4, hub: "Rohtang Pass High Snow Hub", landmarks: "Rohtang Glacier Point & Rahala Falls" },
+    { day: 5, hub: "Vashisht Hot Springs Hub", landmarks: "Vashisht Temple, Hot Sulphur Springs & Jogini Falls" }
+  ],
+  varanasi: [
+    { day: 1, hub: "Dashashwamedh Ghat River Hub", landmarks: "Dashashwamedh Ghat, Evening Ganga Aarti & Boat Ride" },
+    { day: 2, hub: "Kashi Vishwanath Corridor Hub", landmarks: "Kashi Vishwanath Temple, Annapurna & Godowlia" },
+    { day: 3, hub: "Sarnath Buddhist Sanctuary Hub", landmarks: "Dhamek Stupa, Sarnath Deer Park & Museum" },
+    { day: 4, hub: "Assi Ghat & Sunrise Yoga Hub", landmarks: "Assi Ghat Subah-e-Banaras & Tulsi Manas" },
+    { day: 5, hub: "Ramnagar Fort Riverbank Hub", landmarks: "Ramnagar Fort Palace & Vintage Car Collection" }
+  ],
+  ladakh: [
+    { day: 1, hub: "Leh Old Town Heritage Hub", landmarks: "Leh Palace, Shanti Stupa & Main Bazaar" },
+    { day: 2, hub: "Nubra Valley White Dunes Hub", landmarks: "Khardung La Pass, Diskit Monastery & Hunder Camels" },
+    { day: 3, hub: "Pangong Tso Alpine Lake Hub", landmarks: "Pangong High Altitude Lake & Chang La Pass" },
+    { day: 4, hub: "Magnetic Hill & Indus Sangam Hub", landmarks: "Magnetic Hill, Gurudwara Pathar Sahib & Sangam" },
+    { day: 5, hub: "Thiksey & Hemis Monastery Hub", landmarks: "Thiksey Monastery, Hemis & Shey Palace" }
+  ],
+  ooty: [
+    { day: 1, hub: "Ooty Lake & Rose Garden Hub", landmarks: "Ooty Lake Boating, Government Rose Garden" },
+    { day: 2, hub: "Nilgiri Mountain Toy Train Hub", landmarks: "UNESCO Steam Railway & Doddabetta Peak" },
+    { day: 3, hub: "Coonoor Tea Estates Hub", landmarks: "Sim's Park, Dolphin's Nose & Tea Factory" },
+    { day: 4, hub: "Pykara Waterfalls & Lake Hub", landmarks: "Pykara Boat House & Cascading Falls" },
+    { day: 5, hub: "Botanical Gardens & Pine Forest Hub", landmarks: "Government Botanical Gardens & Pine Valley" }
+  ],
+  tokyo: [
+    { day: 1, hub: "Shinjuku Skyscraper Hub", landmarks: "Tokyo Metropolitan Towers, Omoide Yokocho & Kabukicho" },
+    { day: 2, hub: "Shibuya & Harajuku Hub", landmarks: "Shibuya Crossing, Meiji Shrine & Takeshita Street" },
+    { day: 3, hub: "Asakusa & Tokyo Skytree Hub", landmarks: "Senso-ji Temple, Nakamise & Skytree Vista" },
+    { day: 4, hub: "Ginza Premier & Tsukiji Hub", landmarks: "Ginza Shopping Boulevard & Outer Fish Market" },
+    { day: 5, hub: "Akihabara & Ueno Park Hub", landmarks: "Electric Town & Ueno National Museum" }
+  ],
+  singapore: [
+    { day: 1, hub: "Marina Bay Sands Hub", landmarks: "Marina Bay Sands SkyPark, Merlion & Gardens by the Bay" },
+    { day: 2, hub: "Sentosa Island Beach Hub", landmarks: "Universal Studios, Siloso Beach & S.E.A. Aquarium" },
+    { day: 3, hub: "Chinatown & Little India Hub", landmarks: "Buddha Tooth Relic Temple & Sri Veeramakaliamman" },
+    { day: 4, hub: "Orchard Road Premier Hub", landmarks: "ION Orchard, Botanic Gardens & Dempsey Hill" },
+    { day: 5, hub: "Jewel Changi Airport Hub", landmarks: "HSBC Rain Vortex & Canopy Park" }
+  ],
+  rome: [
+    { day: 1, hub: "Colosseum Imperial Hub", landmarks: "Colosseum, Roman Forum & Palatine Hill" },
+    { day: 2, hub: "Vatican City & St. Peter's Hub", landmarks: "St. Peter's Basilica, Vatican Museums & Sistine Chapel" },
+    { day: 3, hub: "Trevi Fountain & Pantheon Hub", landmarks: "Trevi Fountain, Pantheon & Piazza Navona" },
+    { day: 4, hub: "Trastevere Bohemian Hub", landmarks: "Santa Maria in Trastevere & Villa Farnesina" },
+    { day: 5, hub: "Spanish Steps & Borghese Hub", landmarks: "Piazza di Spagna & Villa Borghese Gardens" }
+  ],
+  london: [
+    { day: 1, hub: "Westminster & Big Ben Hub", landmarks: "Big Ben, Westminster Abbey & London Eye" },
+    { day: 2, hub: "Tower Bridge & City Hub", landmarks: "Tower of London, Tower Bridge & Borough Market" },
+    { day: 3, hub: "Soho & British Museum Hub", landmarks: "British Museum, Covent Garden & Trafalgar Square" },
+    { day: 4, hub: "Kensington Palaces Hub", landmarks: "Kensington Palace, Hyde Park & Royal Albert Hall" },
+    { day: 5, hub: "Greenwich & Royal Observatory Hub", landmarks: "Prime Meridian, Cutty Sark & Greenwich Market" }
   ]
 };
 
@@ -94,15 +157,21 @@ export default function Day1HotelsSection({
   // Retrieve current day's real lodges
   const dayNumber = selectedDayIdx + 1;
   const currentDayCity = getDaySpecificCity(destKey, dayNumber);
-  const hubList = DAY_HUBS_DIRECTORY[destKey] || DAY_HUBS_DIRECTORY["switzerland"];
-  const currentHub = hubList[selectedDayIdx % hubList.length] || {
+  const hubList = (DAY_HUBS_DIRECTORY && DAY_HUBS_DIRECTORY[destKey]) || (DAY_HUBS_DIRECTORY && DAY_HUBS_DIRECTORY["switzerland"]) || [
+    { day: 1, hub: `${currentDayCity} Central Staying Hub`, landmarks: `${currentDayCity} Historic Area` }
+  ];
+  const currentHub = (hubList.length > 0 && hubList[selectedDayIdx % hubList.length]) || {
     day: dayNumber,
     hub: `${currentDayCity} Day ${dayNumber} Staying Hub`,
     landmarks: `Day ${dayNumber} scheduled destinations & activities`
   };
 
-  // Get matching hotels for the selected day
-  const displayedHotels = getHotelsForDay(destKey, dayNumber, currentDayCity, isIntl);
+  // Get matching hotels for the selected day - prioritize getHotelsForDay, fallback to hotels prop or getHotelsForDestination
+  let rawHotels = getHotelsForDay(destKey, dayNumber, currentDayCity, isIntl);
+  if (!rawHotels || rawHotels.length === 0) {
+    rawHotels = (hotels && hotels.length > 0) ? hotels : getHotelsForDestination(destKey, destination);
+  }
+  const displayedHotels = rawHotels || [];
 
   function handleSelectDay(idx) {
     setSelectedDayIdx(idx);
@@ -204,35 +273,41 @@ export default function Day1HotelsSection({
           </p>
         ) : (
           displayedHotels.map((h) => {
+            if (!h) return null;
             const currentSelectedIdx = selectedSharingMap[h.id] !== undefined ? selectedSharingMap[h.id] : 0;
-            const activeSharing = h.sharing_options?.[currentSelectedIdx] || h.sharing_options?.[0];
+            const activeSharing = (h.sharing_options && (h.sharing_options[currentSelectedIdx] || h.sharing_options[0])) || {
+              type: "Standard Room",
+              price_per_person_inr: Math.round((h.base_price_inr || 3000) / 2),
+              total_inr: h.base_price_inr || 3000,
+              badge: "Standard"
+            };
 
             // MakeMyTrip verified direct hotel search URL & city listing fallback
             const mmtSearchUrl = h.booking_links?.makemytrip_url || 
-              `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(currentDayCity)}&searchText=${encodeURIComponent(h.name)}`;
+              `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(currentDayCity)}&searchText=${encodeURIComponent(h.name || '')}`;
             
             const mmtCityUrl = h.booking_links?.makemytrip_city_url || 
               `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(currentDayCity)}`;
 
             const googleHotelsUrl = h.booking_links?.google_hotels_url || 
-              `https://www.google.com/travel/hotels?q=${encodeURIComponent(h.name + " " + currentDayCity + " makemytrip")}`;
+              `https://www.google.com/travel/hotels?q=${encodeURIComponent((h.name || '') + " " + currentDayCity + " makemytrip")}`;
 
             return (
               <div 
-                key={h.id} 
+                key={h.id || Math.random()} 
                 className="bg-white hover:bg-slate-50/50 p-4 sm:p-6 rounded-3xl border border-slate-200/80 hover:border-brand-300 transition-all duration-300 shadow-xs hover:shadow-xl flex flex-col md:flex-row gap-6 items-start group"
               >
                 {/* Hotel Photo */}
                 <div className="w-full md:w-64 h-48 shrink-0 relative rounded-2xl overflow-hidden shadow-xs bg-slate-900">
                   <img 
                     src={h.image} 
-                    alt={h.name} 
+                    alt={h.name || 'Lodge'} 
                     loading="lazy"
                     onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80"; }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
                   <span className="absolute top-3 left-3 px-3 py-1 rounded-xl bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider border border-white/20">
-                    Day {dayNumber} · {h.type}
+                    Day {dayNumber} · {h.type || 'Lodge'}
                   </span>
                 </div>
 
@@ -246,17 +321,17 @@ export default function Day1HotelsSection({
                           {h.name}
                         </h4>
                         <span className="px-2.5 py-0.5 bg-amber-50 text-amber-800 text-[11px] font-black rounded-lg flex items-center gap-1 border border-amber-200">
-                          <i className="fa-solid fa-star text-amber-500 text-[10px]"></i> {h.rating} ({h.reviews} reviews)
+                          <i className="fa-solid fa-star text-amber-500 text-[10px]"></i> {h.rating || 4.7} ({h.reviews || 850} reviews)
                         </span>
                       </div>
                       
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                         <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-extrabold text-[11px] border border-emerald-200 flex items-center gap-1">
                           <i className="fa-solid fa-location-crosshairs text-[10px]"></i>
-                          <span>{h.distance}</span>
+                          <span>{h.distance || "Central District"}</span>
                         </span>
                         <span className="text-xs text-slate-500 font-semibold">
-                          near <strong className="text-slate-800">{h.near_landmark}</strong>
+                          near <strong className="text-slate-800">{h.near_landmark || currentDayCity}</strong>
                         </span>
                       </div>
                     </div>
@@ -264,10 +339,10 @@ export default function Day1HotelsSection({
                     {/* Dynamic Rate Display based on Selected Sharing Option */}
                     <div className="text-left sm:text-right shrink-0 p-3 bg-slate-50 rounded-2xl border border-slate-200/70 sm:min-w-[140px]">
                       <span className="text-[10px] uppercase font-black text-slate-400 block tracking-wider">
-                        {activeSharing ? activeSharing.type.split(' ')[0] + ' Sharing Rate' : 'Starting Rate'}
+                        {activeSharing?.type ? activeSharing.type.split(' ')[0] + ' Sharing Rate' : 'Starting Rate'}
                       </span>
                       <span className="text-xl font-black text-emerald-700 block">
-                        ₹{(activeSharing ? activeSharing.price_per_person_inr : h.base_price_inr)?.toLocaleString()}
+                        ₹{(activeSharing?.price_per_person_inr ?? h.base_price_inr ?? 3000)?.toLocaleString()}
                       </span>
                       <span className="text-[10px] text-slate-400 font-bold block">
                         {activeSharing ? "/ person / night" : "/ room / night"}
@@ -277,7 +352,7 @@ export default function Day1HotelsSection({
 
                   {/* Amenities Badges */}
                   <div className="flex flex-wrap gap-1.5">
-                    {h.amenities?.slice(0, 5).map((am, amIdx) => (
+                    {Array.isArray(h.amenities) && h.amenities.slice(0, 5).map((am, amIdx) => (
                       <span key={amIdx} className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold">
                         {am}
                       </span>
@@ -297,7 +372,7 @@ export default function Day1HotelsSection({
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                      {h.sharing_options?.map((opt, optIdx) => {
+                      {Array.isArray(h.sharing_options) && h.sharing_options.map((opt, optIdx) => {
                         const isChosen = currentSelectedIdx === optIdx;
                         return (
                           <div 
@@ -313,14 +388,14 @@ export default function Day1HotelsSection({
                               <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded ${
                                 isChosen ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-700'
                               }`}>
-                                {opt.badge || "Sharing"}
+                                {opt?.badge || "Sharing"}
                               </span>
                               <span className="font-black text-emerald-700 text-xs">
-                                ₹{opt.price_per_person_inr?.toLocaleString()}/p
+                                ₹{(opt?.price_per_person_inr || 0).toLocaleString()}/p
                               </span>
                             </div>
-                            <strong className="text-slate-800 text-xs block font-bold truncate">{opt.type}</strong>
-                            <span className="text-[10px] text-slate-500 font-medium line-clamp-1 mt-0.5">{opt.note || ''}</span>
+                            <strong className="text-slate-800 text-xs block font-bold truncate">{opt?.type || "Standard Room"}</strong>
+                            <span className="text-[10px] text-slate-500 font-medium line-clamp-1 mt-0.5">{opt?.note || ''}</span>
                           </div>
                         );
                       })}

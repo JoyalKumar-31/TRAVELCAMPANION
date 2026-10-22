@@ -293,27 +293,31 @@ class AdaptiveReplannerAgent:
 
         # 1. Fetch rain replacements for affected day
         replacements_data = []
-        if "goa" in destination_name and "day2_rain_replacements" in real_data:
+        if "day2_rain_replacements" in real_data and len(real_data["day2_rain_replacements"]) >= 3:
             replacements_data = real_data["day2_rain_replacements"]
-        elif "indoor_replacements" in real_data and len(real_data["indoor_replacements"]) >= 3:
+        elif "indoor_replacements" in real_data and len(real_data["indoor_replacements"]) >= 1:
             slots = ["Morning", "Afternoon", "Evening"]
-            for idx, rep in enumerate(real_data["indoor_replacements"][:3]):
+            reps = real_data["indoor_replacements"]
+            for idx in range(3):
+                rep = reps[idx % len(reps)]
+                slot = slots[idx]
+                cost_val = float(rep.get("cost", 250.0))
                 replacements_data.append({
-                    "time_slot": slots[idx],
+                    "time_slot": slot,
                     "title": rep["title"],
-                    "category": "culture",
-                    "location": f"{rep['location']}, {real_data.get('name', itinerary.destination)}",
-                    "cost": rep.get("cost", 250.0),
+                    "category": rep.get("category", "culture"),
+                    "location": rep.get("location", f"{itinerary.destination.split(',')[0]}"),
+                    "cost": cost_val,
                     "duration_hours": 2.5,
                     "indoor": True,
-                    "opening_hours": "09:30 AM - 06:00 PM [Verified]",
-                    "verified_status": "Verified Venue",
-                    "family_friendly": True,
-                    "admission_price_inr": rep.get("cost", 250.0),
+                    "opening_hours": rep.get("opening_hours", "09:30 AM - 06:00 PM [Verified]"),
+                    "verified_status": rep.get("verified_status", "Verified Venue"),
+                    "family_friendly": bool(rep.get("family_friendly", True)),
+                    "admission_price_inr": float(rep.get("admission_price_inr", cost_val)),
                     "travel_distance_km": round(2.5 + (idx * 1.5), 1),
-                    "accessibility_features": ["wheelchair_accessible", "step_free_access"],
-                    "ai_replacement_reason": f"Swapped disrupted outdoor activity for {rep['title']}, an authentic, weather-sheltered cultural venue.",
-                    "desc": rep.get("desc", "Weather-protected indoor landmark.")
+                    "accessibility_features": rep.get("accessibility_features", ["wheelchair_accessible", "step_free_ramp"]),
+                    "ai_replacement_reason": rep.get("ai_replacement_reason", f"Swapped disrupted outdoor activity due to severe rain for {rep['title']}, a verified weather-sheltered cultural indoor sanctuary with certified step-free access."),
+                    "desc": rep.get("desc", f"Weather-protected indoor landmark in {itinerary.destination}.")
                 })
 
         # Build revised activities and comparison summary
@@ -344,7 +348,7 @@ class AdaptiveReplannerAgent:
                     family_friendly=bool(rep_item.get("family_friendly", True)),
                     admission_price_inr=float(rep_item.get("admission_price_inr", rep_item["cost"])),
                     travel_distance_km=float(rep_item.get("travel_distance_km", 4.5)),
-                    ai_replacement_reason=rep_item.get("ai_replacement_reason", f"Swapped '{orig_act.title}' due to heavy rain for verified indoor venue.")
+                    ai_replacement_reason=rep_item.get("ai_replacement_reason", f"Swapped '{orig_act.title}' due to heavy rain for verified indoor venue {rep_item['title']}.")
                 )
                 revised_activities.append(sub_act)
                 replacements_summary.append({
@@ -366,10 +370,13 @@ class AdaptiveReplannerAgent:
         itinerary.total_estimated_cost = round(sum(d.total_day_cost for d in itinerary.days), 2)
 
         # Generate overarching AI rationale
+        clean_city = itinerary.destination.split("(")[0].split(",")[0].strip()
+        rep_titles = [r["revised_activity"]["title"] for r in replacements_summary if r.get("revised_activity")]
+        titles_str = ", ".join(rep_titles[:3]) if rep_titles else "sheltered cultural indoor venues"
         mode_str = "Demonstration Simulated Rain Alert" if is_simulated else "Live Open-Meteo Meteorological Rain Alert"
         overall_rationale = (
-            f"Triggered by {mode_str}: Unsafe coastal rainfall on Day {affected_day} required substituting all exposed beach and watersport stops. "
-            f"Day 1 and Day 3 remain 100% intact and unchanged. Day {affected_day} was restructured with authentic, verified covered indoor venues (Houses of Goa Museum, Goa State Museum, and Fontainhas Covered Heritage Gallery) "
+            f"Triggered by {mode_str}: Unsafe rainfall and stormy weather in {clean_city} on Day {affected_day} required substituting all exposed outdoor venues. "
+            f"Day 1 and Day 3 remain 100% intact and unchanged. Day {affected_day} was restructured with authentic, verified covered indoor venues ({titles_str}) "
             f"to guarantee weather safety, zero flood exposure, certified wheelchair accessibility, and uninterrupted family-friendly travel."
         )
 

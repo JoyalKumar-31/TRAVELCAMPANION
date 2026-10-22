@@ -47,8 +47,8 @@ export default function ItineraryTimeline({
     );
   }
 
-  const activeDay = itinerary.days[activeDayIndex] || itinerary.days[0];
-  const isDayReplanned = Boolean(activeDay.is_replanned);
+  const activeDay = (itinerary?.days && (itinerary.days[activeDayIndex] || itinerary.days[0])) || { activities: [] };
+  const isDayReplanned = Boolean(activeDay?.is_replanned);
 
   // Helper date formatter for tab
   function formatDayDate(dateStr) {
@@ -114,7 +114,7 @@ export default function ItineraryTimeline({
           )}
 
           <span className="hidden sm:inline-flex px-3.5 py-1.5 bg-slate-50 text-slate-700 text-xs font-black rounded-xl border border-slate-200/80">
-            Est. Day Spend: ₹{activeDay.total_day_cost?.toLocaleString()}
+            Est. Day Spend: ₹{(activeDay?.total_day_cost || 0).toLocaleString()}
           </span>
         </div>
       </div>
@@ -161,7 +161,7 @@ export default function ItineraryTimeline({
 
       {/* Activity Timeline List with Verified Place Photos */}
       <div className="space-y-4">
-        {activeDay.activities.map((act, actIdx) => {
+        {(activeDay?.activities || []).map((act, actIdx) => {
           const categoryStyle = CATEGORY_COLORS[act.category?.toLowerCase()] || CATEGORY_COLORS.default;
           const placePhoto = getPlacePhoto(act.title, destKey, act.category);
 
@@ -278,9 +278,9 @@ export default function ItineraryTimeline({
                     {act.admission_price_inr !== undefined ? "Admission Fee:" : "Estimated Activity Cost:"}
                   </span>
                   <span className="font-black text-slate-900">
-                    {act.admission_price_inr !== undefined 
-                      ? (act.admission_price_inr === 0 ? "Free Admission" : `₹${act.admission_price_inr.toLocaleString()} / person`)
-                      : (act.cost_inr ? `₹${act.cost_inr.toLocaleString()}` : "Free Admission")}
+                    {act.admission_price_inr !== undefined && act.admission_price_inr !== null
+                      ? (Number(act.admission_price_inr) === 0 ? "Free Admission" : `₹${Number(act.admission_price_inr).toLocaleString()} / person`)
+                      : (act.cost_inr !== undefined && act.cost_inr !== null && Number(act.cost_inr) > 0 ? `₹${Number(act.cost_inr).toLocaleString()}` : "Free Admission")}
                   </span>
                 </div>
 

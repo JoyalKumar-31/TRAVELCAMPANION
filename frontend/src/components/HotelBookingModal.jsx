@@ -136,7 +136,7 @@ export default function HotelBookingModal({
                         </div>
 
                         <div className="text-right shrink-0">
-                          <span className="text-sm font-black text-slate-900">₹{opt.price_per_person_inr?.toLocaleString()}</span>
+                          <span className="text-sm font-black text-slate-900">₹{(opt?.price_per_person_inr || 0).toLocaleString()}</span>
                           <span className="text-[10px] text-slate-400 block font-medium">/ person / night</span>
                         </div>
                       </div>
@@ -148,8 +148,8 @@ export default function HotelBookingModal({
               {/* Price Calculation Card */}
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
                 <div className="flex justify-between text-xs text-slate-600">
-                  <span>{selectedOption?.type} (₹{selectedOption?.price_per_person_inr?.toLocaleString()} × {guests} guests):</span>
-                  <span className="font-bold text-slate-900">₹{totalPrice?.toLocaleString()} / night</span>
+                  <span>{selectedOption?.type || 'Standard'} (₹{(selectedOption?.price_per_person_inr || 0).toLocaleString()} × {guests} guests):</span>
+                  <span className="font-bold text-slate-900">₹{(totalPrice || 0).toLocaleString()} / night</span>
                 </div>
                 <div className="flex justify-between text-xs text-slate-600">
                   <span>Taxes, Linen & Resort Fee:</span>
@@ -157,7 +157,7 @@ export default function HotelBookingModal({
                 </div>
                 <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
                   <span className="font-extrabold text-xs text-slate-900 uppercase tracking-wider">Total Payable in ₹ INR:</span>
-                  <span className="text-lg font-black text-brand-600">₹{totalPrice?.toLocaleString()}</span>
+                  <span className="text-lg font-black text-brand-600">₹{(totalPrice || 0).toLocaleString()}</span>
                 </div>
               </div>
 

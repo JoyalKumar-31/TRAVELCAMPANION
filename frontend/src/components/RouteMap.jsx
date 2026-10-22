@@ -209,14 +209,21 @@ export default function RouteMap({ origin, destination }) {
     }).addTo(map);
 
     // Fit bounds
-    const group = new L.featureGroup(markersRef.current);
-    map.fitBounds(group.getBounds().pad(0.35));
+    try {
+      const group = new L.featureGroup(markersRef.current);
+      if (group && group.getBounds && group.getBounds().isValid()) {
+    
+      }
+    } catch (boundsErr) {
+      console.warn("Leaflet fitBounds warning:", boundsErr);
+    }
+
   }
 
   const originCity = (origin || "").split(",")[0];
   const destCity = (destination || "").split("(")[0].split(",")[0];
 
-  const currentModeData = routeInfo.modes?.[selectedMode] || routeInfo.modes?.car;
+  const currentModeData = (routeInfo?.modes && routeInfo.modes[selectedMode]) || (routeInfo?.modes && routeInfo.modes.car) || {};
 
   // Active Google Directions URL
   const activeGoogleDirectionsUrl = currentModeData?.google_directions_url || 

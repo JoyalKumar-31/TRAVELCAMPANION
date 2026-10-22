@@ -38,7 +38,7 @@ export default function Day2ReplannedComparison({
 
             <span className="px-3 py-1 rounded-xl bg-rose-50 text-rose-800 text-xs font-black border border-rose-200 flex items-center gap-1.5">
               <i className="fa-solid fa-cloud-showers-heavy text-rose-600"></i>
-              <span>Rain Disruption on Day {affected_day}</span>
+              <span>Rain Disruption on Day {affected_day} in {cleanCity}</span>
             </span>
 
             <span className="px-3 py-1 rounded-xl bg-blue-50 text-blue-800 text-xs font-black border border-blue-200">
@@ -47,10 +47,10 @@ export default function Day2ReplannedComparison({
           </div>
 
           <h3 className="font-heading font-black text-slate-900 text-lg sm:text-2xl mt-2 leading-tight">
-            AI-Powered Day {affected_day} Rain Replanning: Original vs Revised Schedule
+            AI-Powered Day {affected_day} Rain Replanning for {cleanCity}: Original vs Revised Schedule
           </h3>
           <p className="text-xs text-slate-500 font-medium mt-1 max-w-3xl leading-relaxed">
-            All unsuitable outdoor beach and cliffside activities on <strong>Day {affected_day}</strong> were automatically swapped for verified, weather-sheltered indoor attractions in {cleanCity}.
+            All unsuitable exposed outdoor activities on <strong>Day {affected_day}</strong> were automatically swapped for verified, weather-sheltered indoor attractions in {cleanCity}.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export default function Day2ReplannedComparison({
           <span>AI Adaptive Replanner Rationale:</span>
         </div>
         <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
-          {ai_replan_rationale || `Heavy rain on Day ${affected_day} made open-air beach sports unsafe. Day 1 and Day 3 remain completely unchanged. Day ${affected_day} was restructured with authentic indoor museums and sheltered heritage galleries to guarantee weather safety, step-free access, and family-friendly comfort.`}
+          {ai_replan_rationale || `Heavy rain in ${cleanCity} on Day ${affected_day} made open-air outdoor activities unsafe. Day 1 and Day 3 remain completely unchanged. Day ${affected_day} was restructured with authentic indoor museums and sheltered heritage galleries in ${cleanCity} to guarantee weather safety, step-free access, and family-friendly comfort.`}
         </p>
       </div>
 
@@ -87,7 +87,7 @@ export default function Day2ReplannedComparison({
                 <span className="text-[10px] font-black uppercase tracking-wider text-rose-700">Before Replanning</span>
               </div>
               <h4 className="font-heading font-black text-slate-900 text-base sm:text-lg mt-0.5">
-                Original Day {affected_day}: Outdoor Beach Activities
+                Original Day {affected_day}: {original_day_plan?.focus_theme || "Exposed Outdoor Itinerary"}
               </h4>
             </div>
             <span className="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 text-[10px] font-black border border-rose-200 shrink-0">
@@ -125,7 +125,7 @@ export default function Day2ReplannedComparison({
                 </p>
 
                 <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px]">
-                  <span className="text-slate-400 font-bold">Planned Cost: ₹{act.estimated_cost?.toLocaleString()}</span>
+                  <span className="text-slate-400 font-bold">Planned Cost: ₹{(act.estimated_cost || 0).toLocaleString()}</span>
                   <span className="text-rose-700 font-bold text-[10px]">
                     <i className="fa-solid fa-triangle-exclamation mr-1"></i> High Waterlogging / Lightning Risk
                   </span>
@@ -192,7 +192,7 @@ export default function Day2ReplannedComparison({
                     <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/80">
                       <span className="text-slate-400 block font-bold uppercase text-[9px]">Admission Fee</span>
                       <strong className="text-emerald-700 font-black truncate block">
-                        ₹{(act.admission_price_inr !== undefined ? act.admission_price_inr : act.estimated_cost)?.toLocaleString()} / person
+                        ₹{(act.admission_price_inr !== undefined && act.admission_price_inr !== null ? act.admission_price_inr : (act.estimated_cost || 0)).toLocaleString()} / person
                       </strong>
                     </div>
 
@@ -211,7 +211,7 @@ export default function Day2ReplannedComparison({
                       Why Selected by AI:
                     </span>
                     <p className="text-[11px] text-emerald-950 font-medium leading-relaxed">
-                      {item.reason_selected || act.ai_replacement_reason || "Selected because it provides dry indoor shelter, verified cultural pedigree, and family-friendly accessibility without duplicate stops."}
+                      {item.reason_selected || act.ai_replacement_reason || `Selected because it provides dry indoor shelter in ${cleanCity}, verified cultural pedigree, and family-friendly accessibility without duplicate stops.`}
                     </p>
                   </div>
 
@@ -235,11 +235,11 @@ export default function Day2ReplannedComparison({
         <div className="flex items-center gap-2">
           <i className="fa-solid fa-circle-check text-emerald-600 text-base"></i>
           <span>
-            <strong>Trip Integrity Protected:</strong> Day 1 (Outdoor sightseeing) and Day 3 (Heritage & Cruise) remain completely untouched.
+            <strong>Trip Integrity Protected:</strong> Day 1 and Day 3 remain completely untouched in {cleanCity}.
           </span>
         </div>
         <span className="text-emerald-700 font-black shrink-0">
-          Day 2 Revised Cost: ₹{revised_day_plan?.total_day_cost?.toLocaleString()}
+          Day 2 Revised Cost: ₹{(revised_day_plan?.total_day_cost || 0).toLocaleString()}
         </span>
       </div>
 

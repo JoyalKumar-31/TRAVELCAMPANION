@@ -4,14 +4,14 @@ import { DESTINATION_PLACES, getDestinationKey } from '../data/destinationData';
 export default function PlacesGallery({ destination, onSelectPlace }) {
   const destKey = getDestinationKey(destination);
   const cleanCity = (destination || "").split("(")[0].split(",")[0].trim();
-  const places = DESTINATION_PLACES[destKey] || DESTINATION_PLACES["switzerland"];
+  const places = (DESTINATION_PLACES && DESTINATION_PLACES[destKey]) || (DESTINATION_PLACES && DESTINATION_PLACES["switzerland"]) || [];
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [activePhotoModal, setActivePhotoModal] = useState(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   // Derive unique categories for filter tabs
-  const categories = ["all", ...new Set(places.map(p => p.category?.split(' ')[0] || p.category))];
+  const categories = ["all", ...new Set(places.map(p => (p && p.category ? (p.category.split(' ')[0] || p.category) : "Attraction")))];
 
   const filteredPlaces = selectedCategory === "all" 
     ? places 

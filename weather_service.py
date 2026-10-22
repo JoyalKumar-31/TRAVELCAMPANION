@@ -1,7 +1,7 @@
 """
 Reliable Weather Service using Open-Meteo Global Forecast API
 Provides real live weather forecasts, precipitation probability, humidity, and rain alert detection.
-Supports explicit distinction between live meteorological feeds and manual demo simulations.
+Supports explicit distinction between live meteorological feeds and manual demo simulations across all destinations.
 """
 import urllib.request
 import urllib.parse
@@ -20,12 +20,24 @@ DESTINATION_COORDINATES = {
     "kashmir": {"lat": 34.0837, "lon": 74.7973, "city": "Srinagar, Kashmir, India"},
     "manali": {"lat": 32.2432, "lon": 77.1892, "city": "Manali, Himachal Pradesh, India"},
     "jaipur": {"lat": 26.9124, "lon": 75.7873, "city": "Jaipur, Rajasthan, India"},
+    "varanasi": {"lat": 25.3176, "lon": 82.9739, "city": "Varanasi, Uttar Pradesh, India"},
+    "ladakh": {"lat": 34.1526, "lon": 77.5771, "city": "Leh Ladakh, India"},
+    "ooty": {"lat": 11.4102, "lon": 76.6950, "city": "Ooty, Tamil Nadu, India"},
+    "mumbai": {"lat": 19.0760, "lon": 72.8777, "city": "Mumbai, Maharashtra, India"},
+    "bengaluru": {"lat": 12.9716, "lon": 77.5946, "city": "Bengaluru, Karnataka, India"},
+    "chennai": {"lat": 13.0827, "lon": 80.2707, "city": "Chennai, Tamil Nadu, India"},
+    "amritsar": {"lat": 31.6340, "lon": 74.8723, "city": "Amritsar, Punjab, India"},
+    "udaipur": {"lat": 24.5854, "lon": 73.7125, "city": "Udaipur, Rajasthan, India"},
+    "kolkata": {"lat": 22.5726, "lon": 88.3639, "city": "Kolkata, West Bengal, India"},
+    "tirupati": {"lat": 13.6288, "lon": 79.4192, "city": "Tirupati, Andhra Pradesh, India"},
     "paris": {"lat": 48.8566, "lon": 2.3522, "city": "Paris, France"},
     "dubai": {"lat": 25.2048, "lon": 55.2708, "city": "Dubai, UAE"},
     "tokyo": {"lat": 35.6762, "lon": 139.6503, "city": "Tokyo, Japan"},
     "rome": {"lat": 41.9028, "lon": 12.4964, "city": "Rome, Italy"},
     "london": {"lat": 51.5074, "lon": -0.1278, "city": "London, UK"},
-    "singapore": {"lat": 1.3521, "lon": 103.8198, "city": "Singapore"}
+    "singapore": {"lat": 1.3521, "lon": 103.8198, "city": "Singapore"},
+    "bali": {"lat": -8.4095, "lon": 115.1889, "city": "Bali, Indonesia"},
+    "maldives": {"lat": 4.1755, "lon": 73.5093, "city": "Male, Maldives"}
 }
 
 WMO_WEATHER_MAP = {
@@ -55,11 +67,39 @@ WMO_WEATHER_MAP = {
 }
 
 def get_destination_coords(dest_name: str) -> Dict[str, Any]:
-    d = (dest_name or "").lower()
+    d = (dest_name or "").lower().replace("-", " ").replace(",", " ")
+    if "goa" in d: return DESTINATION_COORDINATES["goa"]
+    if "switzerland" in d or "zurich" in d or "lucerne" in d or "interlaken" in d: return DESTINATION_COORDINATES["switzerland"]
+    if "hyderabad" in d: return DESTINATION_COORDINATES["hyderabad"]
+    if "vizag" in d or "visakhapatnam" in d: return DESTINATION_COORDINATES["vizag"]
+    if "delhi" in d or "agra" in d or "taj mahal" in d: return DESTINATION_COORDINATES["delhi_agra"]
+    if "kerala" in d or "kochi" in d or "munnar" in d or "alappuzha" in d: return DESTINATION_COORDINATES["kerala"]
+    if "kashmir" in d or "srinagar" in d or "gulmarg" in d: return DESTINATION_COORDINATES["kashmir"]
+    if "manali" in d or "solang" in d or "shimla" in d: return DESTINATION_COORDINATES["manali"]
+    if "jaipur" in d or "rajasthan" in d: return DESTINATION_COORDINATES["jaipur"]
+    if "varanasi" in d or "kashi" in d: return DESTINATION_COORDINATES["varanasi"]
+    if "ladakh" in d or "leh" in d: return DESTINATION_COORDINATES["ladakh"]
+    if "ooty" in d or "nilgiri" in d: return DESTINATION_COORDINATES["ooty"]
+    if "mumbai" in d: return DESTINATION_COORDINATES["mumbai"]
+    if "bengaluru" in d or "bangalore" in d: return DESTINATION_COORDINATES["bengaluru"]
+    if "chennai" in d: return DESTINATION_COORDINATES["chennai"]
+    if "amritsar" in d: return DESTINATION_COORDINATES["amritsar"]
+    if "udaipur" in d: return DESTINATION_COORDINATES["udaipur"]
+    if "kolkata" in d: return DESTINATION_COORDINATES["kolkata"]
+    if "tirupati" in d: return DESTINATION_COORDINATES["tirupati"]
+    if "paris" in d: return DESTINATION_COORDINATES["paris"]
+    if "dubai" in d: return DESTINATION_COORDINATES["dubai"]
+    if "tokyo" in d or "japan" in d: return DESTINATION_COORDINATES["tokyo"]
+    if "rome" in d or "italy" in d: return DESTINATION_COORDINATES["rome"]
+    if "london" in d or "uk" in d: return DESTINATION_COORDINATES["london"]
+    if "singapore" in d: return DESTINATION_COORDINATES["singapore"]
+    if "bali" in d: return DESTINATION_COORDINATES["bali"]
+    if "maldives" in d: return DESTINATION_COORDINATES["maldives"]
+
+    # Fallback to general substring
     for key, val in DESTINATION_COORDINATES.items():
         if key in d:
             return val
-    # Default to Goa if unspecified
     return DESTINATION_COORDINATES["goa"]
 
 def fetch_live_weather_forecast(destination: str, start_date_str: str, duration_days: int = 3) -> Dict[str, Any]:
@@ -83,7 +123,7 @@ def fetch_live_weather_forecast(destination: str, start_date_str: str, duration_
         return {
             "available": False,
             "source": "api_unavailable",
-            "message": f"Live Weather Forecast API covers up to 14 days in advance (Selected date is {abs(days_ahead)} days away). Showing seasonal climate. You can use manual simulation to trigger the rain alert replanning workflow.",
+            "message": f"Live Weather Forecast API covers up to 14 days in advance (Selected date is {abs(days_ahead)} days away). Showing seasonal climate for {coords['city']}. You can use manual simulation to trigger the rain alert replanning workflow.",
             "can_simulate": True,
             "destination": coords["city"],
             "start_date": str(start_date)
@@ -164,14 +204,14 @@ def fetch_live_weather_forecast(destination: str, start_date_str: str, duration_
             "has_rain_alert": has_rain_alert,
             "rain_alert_day": rain_alert_day or 2,
             "alert_badge": "Live Weather API Forecast (Open-Meteo)",
-            "alert_details": f"High precipitation risk ({trip_forecast[1]['rain_prob_percent']}% chance, {trip_forecast[1]['humidity_percent']}% humidity) on Day {rain_alert_day or 2}." if has_rain_alert else "Favorable conditions forecast across trip days."
+            "alert_details": f"High precipitation risk ({trip_forecast[1]['rain_prob_percent']}% chance, {trip_forecast[1]['humidity_percent']}% humidity) on Day {rain_alert_day or 2} in {coords['city']}." if has_rain_alert else f"Favorable conditions forecast across trip days in {coords['city']}."
         }
 
     except Exception as e:
         return {
             "available": False,
             "source": "api_unavailable",
-            "message": f"Weather API temporarily unreachable ({str(e)}). You can trigger a demonstration simulated rain alert to test itinerary replanning.",
+            "message": f"Weather API temporarily unreachable for {coords['city']}. You can trigger a demonstration simulated rain alert to test itinerary replanning.",
             "can_simulate": True,
             "destination": coords["city"],
             "start_date": str(start_date)
@@ -179,7 +219,7 @@ def fetch_live_weather_forecast(destination: str, start_date_str: str, duration_
 
 def generate_simulated_rain_alert(destination: str, day_number: int = 2) -> Dict[str, Any]:
     """
-    Creates an explicit Demonstration Manual Rain Alert for testing replanning.
+    Creates an explicit Demonstration Manual Rain Alert for testing replanning for ANY destination.
     Clearly marked as 'manual_simulation' to distinguish from live APIs.
     """
     clean_city = destination.split("(")[0].split(",")[0].strip()
@@ -190,14 +230,14 @@ def generate_simulated_rain_alert(destination: str, day_number: int = 2) -> Dict
         "is_simulated": True,
         "affected_day": day_number,
         "alert_badge": "Demonstration Alert (Manual Rain Simulation)",
-        "condition": "Severe Monsoon Torrential Downpour & Thunderstorm",
+        "condition": f"Severe Heavy Downpour & Thunderstorm in {clean_city}",
         "icon": "fa-cloud-bolt",
-        "temp_celsius": 26,
-        "humidity_percent": 92,
+        "temp_celsius": 24,
+        "humidity_percent": 94,
         "precipitation_probability": 95,
         "rainfall_rate_mm_hr": 48.0,
         "wind_gusts_kmh": 55,
         "headline": f"Heavy Rain & Gale Warning on Day {day_number} in {clean_city}",
-        "description": f"Simulated heavy monsoon downpour (95% rain risk, 92% humidity) affecting all outdoor coastal activities on Day {day_number}. Outdoor beaches, watersports, and cliff walks are unsafe.",
+        "description": f"Simulated heavy torrential downpour (95% rain risk, 94% humidity) affecting all outdoor sightseeing, nature trails, and viewpoint activities on Day {day_number} in {clean_city}. Outdoor venues are unsafe and must be substituted with verified indoor alternatives.",
         "replanning_needed": True
     }

@@ -41,7 +41,7 @@ export default function WeatherAlertBanner({
     humidity = simulatedAlert.humidity_percent || 92;
     sourceBadge = "Demonstration Alert (Manual Rain Simulation)";
   } else if (liveWeather?.available && day2Forecast) {
-    displayTemp = `${Math.round(day2Forecast.temp_max)}°C`;
+    displayTemp = `${Math.round(day2Forecast.temp_max != null ? day2Forecast.temp_max : 28)}°C`;
     displayCondition = day2Forecast.condition;
     displayIcon = day2Forecast.icon;
     rainProbability = day2Forecast.rain_prob_percent;

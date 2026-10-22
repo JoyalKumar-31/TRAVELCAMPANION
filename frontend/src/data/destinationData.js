@@ -197,7 +197,10 @@ export function generateBookingLinks(hotelName, cityName, isIntl = false) {
 }
 
 export function getHotelsForDay(destKey = "switzerland", dayNumber = 1, destination = "", isIntl = false) {
-  const destHotels = HOTELS_DATABASE[destKey] || HOTELS_DATABASE["switzerland"];
+  let destHotels = HOTELS_DATABASE[destKey];
+  if (!destHotels || destHotels.length === 0) {
+    destHotels = getHotelsForDestination(destKey, destination || destKey);
+  }
   if (!Array.isArray(destHotels) || destHotels.length === 0) return [];
 
   const targetCity = getDaySpecificCity(destKey, dayNumber);
@@ -329,6 +332,83 @@ export const DESTINATION_CONFIG = {
       { title: "Burj Khalifa At The Top", note: "124th Floor Skyline Vista", rating: "4.8", img: PHOTO_BANK.dubai },
       { title: "Desert Safari & BBQ Camp", note: "Dune Bashing & Starlight Show", rating: "4.8", img: PHOTO_BANK.dubai },
       { title: "Dubai Marina Yacht Cruise", note: "Luxury Skyscraper Harbor", rating: "4.7", img: PHOTO_BANK.lake_zurich }
+    ]
+  },
+  "jaipur": {
+    heroImg: "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fb/20191219_Fort_Amber%2C_Amer%2C_Jaipur_0955_9481.jpg/1280px-20191219_Fort_Amber%2C_Amer%2C_Jaipur_0955_9481.jpg",
+    baseRatePerDay: 3600,
+    weather: { temp: "27°C", condition: "Royal Winter Sun", verdict: "Pleasant sunny weather. Perfect conditions for exploring hilltop forts and pink city bazaars.", icon: "fa-sun" },
+    alert: { text: "Sun glare alert at Amer Fort on Day 2 afternoon. Tap to swap open ramparts with Albert Hall Museum.", day: 2, slot: "Afternoon" },
+    recs: [
+      { title: "Amber Fort & Palace", note: "Hilltop UNESCO Rajput Citadel", rating: "4.8", img: PHOTO_BANK.amber_fort },
+      { title: "Hawa Mahal (Palace of Winds)", note: "953 Honeycomb Jharokhas", rating: "4.7", img: PHOTO_BANK.hawa_mahal },
+      { title: "Jal Mahal Water Palace", note: "Man Sagar Lake Scenic Viewpoint", rating: "4.7", img: PHOTO_BANK.jal_mahal }
+    ]
+  },
+  "varanasi": {
+    heroImg: "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ad/Dasaswamedh_ghat-varanasi_india-andres_larin.jpg/1280px-Dasaswamedh_ghat-varanasi_india-andres_larin.jpg",
+    baseRatePerDay: 2400,
+    weather: { temp: "24°C", condition: "Crisp River Breeze", verdict: "Cool evening breeze along the sacred ghats. Ideal for sunrise boat rides and evening Ganga Aarti.", icon: "fa-sun" },
+    alert: { text: "Evening crowd surge at Dashashwamedh Ghat for Ganga Aarti. Tap to arrange reserved boat viewing.", day: 1, slot: "Evening" },
+    recs: [
+      { title: "Kashi Vishwanath Corridor", note: "Sacred Jyotirlinga Temple", rating: "4.9", img: PHOTO_BANK.kashi_temple },
+      { title: "Dashashwamedh Ghat Ganga Aarti", note: "Mesmerizing Evening Fire Ritual", rating: "4.9", img: PHOTO_BANK.varanasi_ghats },
+      { title: "Sarnath Buddhist Stupa", note: "Lord Buddha's First Sermon Site", rating: "4.8", img: PHOTO_BANK.varanasi_ghats }
+    ]
+  },
+  "ladakh": {
+    heroImg: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=1600&q=85",
+    baseRatePerDay: 4800,
+    weather: { temp: "9°C", condition: "Chilly High Altitude Sun", verdict: "Crystal clear Himalayan skies. Acclimatization rest highly advised on arrival.", icon: "fa-snowflake" },
+    alert: { text: "High altitude oxygen alert along Khardung La on Day 2. Tap to swap high pass with Leh Palace & Shanti Stupa.", day: 2, slot: "Morning" },
+    recs: [
+      { title: "Pangong Tso Blue Lake", note: "Color-Changing High Altitude Lake", rating: "4.9", img: PHOTO_BANK.ladakh_lake },
+      { title: "Khardung La Pass", note: "World's Highest Motor Road (5,359m)", rating: "4.9", img: PHOTO_BANK.khardung_la },
+      { title: "Nubra Valley Sand Dunes", note: "Double-Humped Bactrian Camels", rating: "4.8", img: PHOTO_BANK.nubra_valley }
+    ]
+  },
+  "ooty": {
+    heroImg: "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=1600&q=85",
+    baseRatePerDay: 3200,
+    weather: { temp: "15°C", condition: "Refreshing Nilgiri Mist", verdict: "Cool mountain mist, lush pine forests, and fragrant tea plantations.", icon: "fa-cloud-sun" },
+    alert: { text: "Thick afternoon fog at Doddabetta Peak on Day 2. Tap to swap viewpoint with Government Botanical Gardens.", day: 2, slot: "Afternoon" },
+    recs: [
+      { title: "Nilgiri Mountain Toy Train", note: "UNESCO Heritage Rack Railway", rating: "4.8", img: PHOTO_BANK.ooty_train },
+      { title: "Ooty Lake & Boathouse", note: "Eucalyptus Framed Waterways", rating: "4.6", img: PHOTO_BANK.ooty_lake },
+      { title: "Emerald Tea Plantation Walk", note: "Fresh Green Valley Stroll", rating: "4.8", img: PHOTO_BANK.ooty_tea }
+    ]
+  },
+  "rome": {
+    heroImg: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1600&q=85",
+    baseRatePerDay: 12500,
+    weather: { temp: "20°C", condition: "Sunny & Mild", verdict: "Warm Mediterranean sunshine. Great conditions for ancient ruins and Piazza Navona dining.", icon: "fa-sun" },
+    alert: { text: "Colosseum ticket surge on Day 2. Tap to swap time slot with indoor Galleria Borghese.", day: 2, slot: "Morning" },
+    recs: [
+      { title: "The Colosseum & Roman Forum", note: "Iconic Gladiatorial Amphitheater", rating: "4.9", img: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=600&q=80" },
+      { title: "Vatican Museums & Sistine Chapel", note: "Michelangelo Masterpiece Frescoes", rating: "4.9", img: "https://images.unsplash.com/photo-1543429776-2782fc8e1acd?auto=format&fit=crop&w=600&q=80" },
+      { title: "Trevi Fountain Coin Toss", note: "Baroque Water Symphony", rating: "4.8", img: "https://images.unsplash.com/photo-1525874684015-58379d421a52?auto=format&fit=crop&w=600&q=80" }
+    ]
+  },
+  "tokyo": {
+    heroImg: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1600&q=85",
+    baseRatePerDay: 12000,
+    weather: { temp: "18°C", condition: "Crisp Autumn", verdict: "Clear skies and sharp visibility. Outstanding city views from Shibuya Sky and Roppongi Hills.", icon: "fa-sun" },
+    alert: { text: "Evening subway rush hour at Shibuya on Day 2. Tap to swap outdoor crossing with teamLab Planets.", day: 2, slot: "Evening" },
+    recs: [
+      { title: "Sensō-ji Temple & Asakusa", note: "Tokyo's Oldest Buddhist Temple", rating: "4.8", img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=600&q=80" },
+      { title: "Shibuya Crossing & Hachiko", note: "World's Busiest Pedestrian Scramble", rating: "4.8", img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=600&q=80" },
+      { title: "teamLab Planets Tokyo", note: "Immersive Water Digital Art", rating: "4.9", img: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=600&q=80" }
+    ]
+  },
+  "singapore": {
+    heroImg: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1600&q=85",
+    baseRatePerDay: 11000,
+    weather: { temp: "29°C", condition: "Tropical Warmth", verdict: "Warm breeze and tropical sun. Best to explore air-conditioned domes during the midday heat.", icon: "fa-sun" },
+    alert: { text: "Midday tropical shower alert on Day 2. Tap to swap outdoor garden with indoor Flower Dome sanctuary.", day: 2, slot: "Afternoon" },
+    recs: [
+      { title: "Gardens by the Bay & Cloud Forest", note: "Supertrees & 35m Indoor Waterfall", rating: "4.9", img: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=600&q=80" },
+      { title: "Marina Bay Sands SkyPark", note: "57th Floor Infinity Skyline", rating: "4.8", img: "https://images.unsplash.com/photo-1508964942454-1a56651d54ac?auto=format&fit=crop&w=600&q=80" },
+      { title: "Sentosa Island Cable Car", note: "Siloso Beach & S.E.A. Aquarium", rating: "4.7", img: "https://images.unsplash.com/photo-1565967511849-76a60a516170?auto=format&fit=crop&w=600&q=80" }
     ]
   }
 };
@@ -1154,7 +1234,104 @@ export const DESTINATION_PLACES = {
     { title: "Desert Safari & Bedouin Camp", category: "Dune Bashing & BBQ", rating: "4.8", reviews: 6500, img: PHOTO_BANK.dubai_safari, fee: "₹2,400", desc: "4x4 dune bashing, camel rides, tanoura dance, and starlit open barbecue buffet." },
     { title: "Museum of the Future", category: "Futuristic Wonder", rating: "4.8", reviews: 4200, img: PHOTO_BANK.dubai_museum, fee: "₹3,300", desc: "Architectural torus marvel wrapped in Arabic calligraphy exploring year 2071." }
   ],
+  "tokyo": [
+    { title: "Senso-ji Temple & Asakusa", category: "Historic Temple", rating: "4.8", reviews: 7800, img: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=600&q=80", fee: "Free Entry", desc: "Tokyo's oldest and most significant ancient Buddhist temple founded in 645 AD." },
+    { title: "Shibuya Crossing & Hachiko", category: "Iconic Cityscape", rating: "4.9", reviews: 9200, img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=600&q=80", fee: "Free Entry", desc: "World's busiest pedestrian scramble crossing surrounded by giant electronic billboards." }
+  ],
+  "singapore": [
+    { title: "Gardens by the Bay & Supertree Grove", category: "Futuristic Botanic", rating: "4.9", reviews: 8800, img: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=600&q=80", fee: "Free Outdoor", desc: "101-hectare horticultural park with vertical gardens and cooled conservatories." },
+    { title: "Marina Bay Sands SkyPark", category: "City Skyline", rating: "4.8", reviews: 7400, img: "https://images.unsplash.com/photo-1506351421178-63b52a2d2562?auto=format&fit=crop&w=600&q=80", fee: "₹2,200", desc: "57th-floor cantilevered observation deck with vistas across Singapore Strait." }
+  ],
   "rome": [
     { title: "Colosseum Amphitheatre", category: "Ancient Roman Arena", rating: "4.9", reviews: 8900, img: PHOTO_BANK.colosseum, fee: "₹2,100", desc: "Imperial gladiatorial amphitheatre built in 70-80 AD, the iconic symbol of Rome." }
   ]
 };
+
+
+export function getHotelsForDestination(destKey = "goa", destinationName = "Goa, India") {
+  if (HOTELS_DATABASE[destKey] && HOTELS_DATABASE[destKey].length > 0) {
+    return HOTELS_DATABASE[destKey];
+  }
+  const cleanCity = (destinationName || "City").split("(")[0].split(",")[0].trim();
+  const isIntl = ["switzerland", "paris", "dubai", "tokyo", "rome", "london", "singapore", "bali", "maldives"].includes(destKey);
+  const baseRate = isIntl ? 8500 : 3200;
+
+  return [
+    {
+      id: `${destKey}-d1-1`,
+      day: 1,
+      day_hub: `${cleanCity} Central Heritage Hub`,
+      name: `The Grand Palace Hotel ${cleanCity}`,
+      type: "Heritage Central Inn",
+      near_landmark: `Central Heritage Promenade & Cultural Hub`,
+      distance: `250m from Day 1 Staying Hub`,
+      rating: 4.8,
+      reviews: 1380,
+      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80",
+      amenities: ["Complimentary Breakfast", "Free High-Speed WiFi", "Central Air Conditioning", "Luggage Storage"],
+      base_price_inr: baseRate,
+      sharing_options: [
+        {
+          type: "2-Sharing Deluxe Heritage Room",
+          price_per_person_inr: Math.round(baseRate / 2),
+          total_inr: baseRate,
+          badge: "Popular Sharing",
+          note: `Spacious en-suite room in prime ${cleanCity} district`
+        },
+        {
+          type: "4-Bed Travel Quad Suite",
+          price_per_person_inr: Math.round(baseRate / 3.5),
+          total_inr: Math.round(baseRate * 1.15),
+          badge: "Group Saver",
+          note: "Ideal for friends or family sharing with dual vanity"
+        }
+      ]
+    },
+    {
+      id: `${destKey}-d1-2`,
+      day: 1,
+      day_hub: `${cleanCity} Old Quarter`,
+      name: `Boutique Old Town Lodge ${cleanCity}`,
+      type: "Boutique Stays & Suites",
+      near_landmark: `Historic Old Town & Market Square`,
+      distance: `150m from Transit & Walking Trails`,
+      rating: 4.7,
+      reviews: 950,
+      image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=600&q=80",
+      amenities: ["Rooftop Cafe", "Free WiFi", "Travel Concierge"],
+      base_price_inr: Math.round(baseRate * 0.78),
+      sharing_options: [
+        {
+          type: "2-Sharing Balcony Deluxe",
+          price_per_person_inr: Math.round((baseRate * 0.78) / 2),
+          total_inr: Math.round(baseRate * 0.78),
+          badge: "Best Value",
+          note: `Private balcony overlooking ${cleanCity}`
+        }
+      ]
+    },
+    {
+      id: `${destKey}-d1-3`,
+      day: 1,
+      day_hub: `${cleanCity} Backpacker Hub`,
+      name: `Hosteller & Explorer Pods ${cleanCity}`,
+      type: "Modern Backpacker & Shared Dorm",
+      near_landmark: `Central Transit Station`,
+      distance: `400m from Central Station`,
+      rating: 4.6,
+      reviews: 1850,
+      image: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=600&q=80",
+      amenities: ["High-Speed WiFi", "Community Lounge", "Lockers"],
+      base_price_inr: Math.round(baseRate * 0.38),
+      sharing_options: [
+        {
+          type: "6-Bed AC Shared Bunk Dorm",
+          price_per_person_inr: Math.round((baseRate * 0.38) / 2),
+          total_inr: Math.round(baseRate * 0.38),
+          badge: "Budget Dorm",
+          note: "Privacy pod with personal reading light & USB dock"
+        }
+      ]
+    }
+  ];
+}

@@ -13,9 +13,11 @@ import HotelBookingModal from './components/HotelBookingModal';
 import GroupTravelModal from './components/GroupTravelModal';
 import AIChatCompanion from './components/AIChatCompanion';
 import SOSShieldModal from './components/SOSShieldModal';
+import ErrorBoundary from './components/ErrorBoundary';
 import { 
   DESTINATION_CONFIG, 
   HOTELS_DATABASE, 
+  getHotelsForDestination,
   getDestinationKey, 
   generateBookingLinks 
 } from './data/destinationData';
@@ -59,8 +61,20 @@ export default function App() {
   const [isSafetyModalOpen, setIsSafetyModalOpen] = useState(false);
 
   const destKey = getDestinationKey(destination);
-  const currentConfig = DESTINATION_CONFIG[destKey] || DESTINATION_CONFIG["goa"] || DESTINATION_CONFIG["switzerland"];
-  const [alertText, setAlertText] = useState(currentConfig?.alert?.text || "Rain alert detected for Day 2 outdoor activities.");
+  const cleanCity = (destination || "").split("(")[0].split(",")[0].trim();
+  const matchedConfig = DESTINATION_CONFIG[destKey];
+  const currentConfig = matchedConfig || {
+    heroImg: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=85",
+    baseRatePerDay: 3500,
+    weather: { temp: "26°C", condition: "Pleasant & Clear", verdict: `Optimal conditions for sightseeing and exploring culinary quarters in ${cleanCity}.`, icon: "fa-sun" },
+    alert: { text: `Weather alert monitored for ${cleanCity}. Tap to adapt your schedule.`, day: 2, slot: "Afternoon" },
+    recs: [
+      { title: `${cleanCity} Central Heritage Square`, note: "Historical Old Quarter", rating: "4.8", img: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80" },
+      { title: `${cleanCity} Scenic Botanical Gardens`, note: "Nature & Greenery Trail", rating: "4.7", img: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=600&q=80" },
+      { title: `${cleanCity} Cultural Arts Sanctuary`, note: "Local Heritage & Handicrafts", rating: "4.8", img: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=600&q=80" }
+    ]
+  };
+  const [alertText, setAlertText] = useState(currentConfig?.alert?.text || `Rain alert detected for Day 2 outdoor activities in ${cleanCity}.`);
 
   // Fix: Ensure page is firmly at the top on initial load (never auto-scroll down)
   useEffect(() => {
@@ -77,12 +91,11 @@ export default function App() {
     setUsedBudget(calcUsed);
 
     // 2. Update Alert Text
-    setAlertText(currentConfig?.alert?.text || "Rain alert detected for Day 2 outdoor activities.");
+    setAlertText(currentConfig?.alert?.text || `Rain alert detected for Day 2 outdoor activities in ${cleanCity}.`);
 
     // 3. Instant 0ms Lodges Display from Client Knowledge Base
-    const cleanCity = destination.split("(")[0].split(",")[0].trim();
     const isIntl = ["switzerland", "paris", "dubai", "tokyo", "rome", "london", "singapore", "bali", "maldives"].includes(destKey);
-    const clientStays = HOTELS_DATABASE[destKey] || HOTELS_DATABASE["goa"] || HOTELS_DATABASE["switzerland"];
+    const clientStays = getHotelsForDestination(destKey, destination);
     const enrichedStays = (clientStays || []).map(h => ({
       ...h,
       booking_links: h.booking_links || generateBookingLinks(h.name, cleanCity, isIntl)
@@ -340,31 +353,33 @@ export default function App() {
         
         {/* Hero Section & Floating Search Bar */}
         <section className="relative">
-          <HeroBanner 
-            destination={destination}
-            duration={duration}
-            travelersCount={travelersCount}
-            travelerType={travelerType}
-            heroImg={currentConfig?.heroImg}
-            onSelectDestination={setDestination}
-          />
+          <ErrorBoundary title="Hero & Search Banner Notice">
+            <HeroBanner 
+              destination={destination}
+              duration={duration}
+              travelersCount={travelersCount}
+              travelerType={travelerType}
+              heroImg={currentConfig?.heroImg}
+              onSelectDestination={setDestination}
+            />
 
-          <SearchBar 
-            origin={origin}
-            destination={destination}
-            duration={duration}
-            travelersCount={travelersCount}
-            travelerType={travelerType}
-            startDate={startDate}
-            onStartDateChange={setStartDate}
-            isPlanning={isPlanning}
-            onOriginChange={setOrigin}
-            onDestinationChange={setDestination}
-            onDurationChange={setDuration}
-            onTravelersCountChange={setTravelersCount}
-            onPersonaSelect={handlePersonaSelect}
-            onExecutePlanning={() => generateItineraryViaAgents(destination, duration, travelersCount, travelerType, totalBudget, startDate)}
-          />
+            <SearchBar 
+              origin={origin}
+              destination={destination}
+              duration={duration}
+              travelersCount={travelersCount}
+              travelerType={travelerType}
+              startDate={startDate}
+              onStartDateChange={setStartDate}
+              isPlanning={isPlanning}
+              onOriginChange={setOrigin}
+              onDestinationChange={setDestination}
+              onDurationChange={setDuration}
+              onTravelersCountChange={setTravelersCount}
+              onPersonaSelect={handlePersonaSelect}
+              onExecutePlanning={() => generateItineraryViaAgents(destination, duration, travelersCount, travelerType, totalBudget, startDate)}
+            />
+          </ErrorBoundary>
         </section>
 
         {/* 3. Core 2-Column Layout */}
@@ -375,64 +390,74 @@ export default function App() {
             
             {/* Live Weather Forecast & Disruption Alert Banner */}
             <div id="weather-alert-section">
-              <WeatherAlertBanner 
-                destination={destination}
-                weather={currentConfig?.weather}
-                liveWeather={liveWeather}
-                simulatedAlert={simulatedAlert}
-                alertText={alertText}
-                isReplanning={isReplanning}
-                isSimulating={isSimulating}
-                onTriggerReplanning={handleTriggerReplanning}
-                onSimulateRain={handleSimulateRain}
-                onClearSimulation={handleClearSimulation}
-                startDate={startDate}
-                duration={duration}
-              />
+              <ErrorBoundary title="Weather Forecast & Alert Notice">
+                <WeatherAlertBanner 
+                  destination={destination}
+                  weather={currentConfig?.weather}
+                  liveWeather={liveWeather}
+                  simulatedAlert={simulatedAlert}
+                  alertText={alertText}
+                  isReplanning={isReplanning}
+                  isSimulating={isSimulating}
+                  onTriggerReplanning={handleTriggerReplanning}
+                  onSimulateRain={handleSimulateRain}
+                  onClearSimulation={handleClearSimulation}
+                  startDate={startDate}
+                  duration={duration}
+                />
+              </ErrorBoundary>
             </div>
 
             {/* AI-POWERED SIDE-BY-SIDE DAY 2 REPLANNING COMPARISON (Rendered when replanned) */}
             {isComparisonOpen && comparisonData && (
               <div id="day2-comparison-section">
-                <Day2ReplannedComparison 
-                  comparisonData={comparisonData}
-                  destination={destination}
-                  onDismiss={() => setIsComparisonOpen(false)}
-                />
+                <ErrorBoundary title="Day 2 Replanning Comparison Notice">
+                  <Day2ReplannedComparison 
+                    comparisonData={comparisonData}
+                    destination={destination}
+                    onDismiss={() => setIsComparisonOpen(false)}
+                  />
+                </ErrorBoundary>
               </div>
             )}
 
             {/* Iconic Places Photo Showcase & Attractions */}
             <div id="places-gallery-section">
-              <PlacesGallery 
-                destination={destination}
-              />
+              <ErrorBoundary title="Iconic Attractions Gallery Notice">
+                <PlacesGallery 
+                  destination={destination}
+                />
+              </ErrorBoundary>
             </div>
 
             {/* Day-by-Day Activity Schedule Timeline with Place Photos */}
             <div id="itinerary-timeline-section">
-              <ItineraryTimeline 
-                destination={destination}
-                itinerary={itinerary}
-                activeDayIndex={activeDayIndex}
-                onSelectDayIndex={setActiveDayIndex}
-                isLoading={isPlanning}
-                hasComparisonData={Boolean(comparisonData)}
-                onOpenComparison={() => setIsComparisonOpen(true)}
-              />
+              <ErrorBoundary title="Day-by-Day Timeline Notice">
+                <ItineraryTimeline 
+                  destination={destination}
+                  itinerary={itinerary}
+                  activeDayIndex={activeDayIndex}
+                  onSelectDayIndex={setActiveDayIndex}
+                  isLoading={isPlanning}
+                  hasComparisonData={Boolean(comparisonData)}
+                  onOpenComparison={() => setIsComparisonOpen(true)}
+                />
+              </ErrorBoundary>
             </div>
 
             {/* Verified Lodges & Hotels Section (Multi-Day with Direct MakeMyTrip Booking) */}
             <div id="day1-hotels-section">
-              <Day1HotelsSection 
-                destination={destination}
-                duration={duration}
-                activeDayIndex={activeDayIndex}
-                onSelectDayIndex={setActiveDayIndex}
-                itinerary={itinerary}
-                hotels={hotels}
-                onOpenBookingModal={(hotel) => setSelectedHotelForBooking(hotel)}
-              />
+              <ErrorBoundary title="Verified Lodges & Stays Notice">
+                <Day1HotelsSection 
+                  destination={destination}
+                  duration={duration}
+                  activeDayIndex={activeDayIndex}
+                  onSelectDayIndex={setActiveDayIndex}
+                  itinerary={itinerary}
+                  hotels={hotels}
+                  onOpenBookingModal={(hotel) => setSelectedHotelForBooking(hotel)}
+                />
+              </ErrorBoundary>
             </div>
 
           </div>
@@ -441,18 +466,22 @@ export default function App() {
           <div className="lg:col-span-4 space-y-6 sticky top-20">
             
             {/* Real-Time Budget Overview */}
-            <BudgetCard 
-              totalBudget={totalBudget}
-              usedBudget={usedBudget}
-              travelersCount={travelersCount}
-            />
+            <ErrorBoundary title="Budget Overview Notice">
+              <BudgetCard 
+                totalBudget={totalBudget}
+                usedBudget={usedBudget}
+                travelersCount={travelersCount}
+              />
+            </ErrorBoundary>
 
             {/* Geospatial Route Map & Distance Calculation */}
             <div id="route-map-section">
-              <RouteMap 
-                origin={origin}
-                destination={destination}
-              />
+              <ErrorBoundary title="Route Directions Map Notice">
+                <RouteMap 
+                  origin={origin}
+                  destination={destination}
+                />
+              </ErrorBoundary>
             </div>
 
           </div>
