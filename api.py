@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 
 from schemas import (
+    DayReplanningRequest,
+    DayReplanningResponse,
     TravelerProfile, 
     Itinerary, 
     DisruptionEvent, 
@@ -276,6 +278,57 @@ def generate_itinerary(profile: TravelerProfile):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/weather/forecast")
+def get_weather_forecast(destination: str = "Goa, India", start_date: Optional[str] = None, duration_days: int = 3):
+    """
+    Fetches reliable live meteorological weather forecast from Open-Meteo.
+    Detects rain probability, humidity, and flags rain alerts for outdoor activities.
+    """
+    from weather_service import fetch_live_weather_forecast
+    return fetch_live_weather_forecast(destination, start_date or "", duration_days)
+
+@app.post("/api/weather/simulate-rain")
+def simulate_weather_rain(payload: Dict[str, Any]):
+    """
+    Manually simulates a rain alert on Day 2 for demonstration purposes, explicitly tagged as simulated.
+    """
+    from weather_service import generate_simulated_rain_alert
+    dest = payload.get("destination", "Goa, India")
+    day_num = payload.get("day_number", 2)
+    return generate_simulated_rain_alert(dest, day_num)
+
+@app.post("/api/itinerary/replan-day", response_model=DayReplanningResponse)
+def replan_itinerary_day(payload: DayReplanningRequest):
+    """
+    AI-Powered Day Replanning Workflow:
+    When rain affects Day 2, keeps Day 1 and Day 3 unchanged while substituting
+    all unsuitable outdoor activities with verified indoor alternatives.
+    Presents side-by-side original vs revised comparison with AI rationale.
+    """
+    try:
+        updated_itinerary, orig_day, rev_day, summary, rationale = replanner_agent.replan_entire_day(
+            itinerary=payload.itinerary,
+            affected_day=payload.affected_day,
+            disruption_description=payload.disruption_description or "Severe rain downpour",
+            is_simulated=payload.is_simulated
+        )
+        alert_source = "manual_simulation" if payload.is_simulated else "live"
+        alert_badge = "Demonstration Alert (Manual Rain Simulation)" if payload.is_simulated else "Live Weather API Alert (Open-Meteo)"
+
+        return DayReplanningResponse(
+            success=True,
+            updated_itinerary=updated_itinerary,
+            affected_day=payload.affected_day,
+            alert_source=alert_source,
+            alert_badge=alert_badge,
+            original_day_plan=orig_day,
+            revised_day_plan=rev_day,
+            replacements_summary=summary,
+            ai_replan_rationale=rationale
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/api/itinerary/adapt", response_model=AdaptResponse)
 def adapt_itinerary(payload: AdaptRequest):

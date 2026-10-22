@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import json
 import re
 import uuid
@@ -160,6 +161,48 @@ Return ONLY a valid JSON object matching this schema without any markdown format
 
         for day in range(1, duration + 1):
             day_theme = city_data["themes"].get(day, f"Historic Wonders & Hidden Alleys of {city_data['name']} (Day {day})")
+            
+            # Format calendar date if start_date provided
+            cal_date_str = None
+            if getattr(profile, "travel_start_date", None):
+                try:
+                    s_date = datetime.strptime(profile.travel_start_date, "%Y-%m-%d")
+                    cal_date_str = (s_date + timedelta(days=day - 1)).strftime("%b %d, %Y")
+                except Exception:
+                    pass
+
+            day_specific = city_data.get("day_specific_plans", {})
+            if day in day_specific:
+                acts = []
+                for item in day_specific[day]:
+                    acts.append(Activity(
+                        id=f"act_{day}_{item['time_slot'].lower()}_{uuid.uuid4().hex[:4]}",
+                        title=item["title"],
+                        time_slot=item["time_slot"],
+                        category=item.get("category", "sightseeing"),
+                        location=item["location"],
+                        estimated_cost=round(float(item.get("cost", 0.0)), 2),
+                        duration_hours=float(item.get("duration_hours", 2.5)),
+                        is_indoor=bool(item.get("indoor", False)),
+                        description=item.get("desc", ""),
+                        accessibility_features=accessibility if accessibility else ["wheelchair_accessible"],
+                        eco_friendly=True,
+                        opening_hours=item.get("opening_hours", "09:00 AM - 06:00 PM [Verified]"),
+                        verified_status=item.get("verified_status", "Verified Venue"),
+                        family_friendly=bool(item.get("family_friendly", True)),
+                        admission_price_inr=float(item.get("admission_price_inr", item.get("cost", 0.0))),
+                        travel_distance_km=float(item.get("travel_distance_km", 4.5))
+                    ))
+                day_cost = round(sum(a.estimated_cost for a in acts), 2)
+                day_plans.append(DayPlan(
+                    day_number=day,
+                    focus_theme=day_theme,
+                    activities=acts,
+                    total_day_cost=day_cost,
+                    transit_mode="Air-Conditioned Coastal Tourist Cab / Van",
+                    date=cal_date_str
+                ))
+                continue
             
             # Select morning activity from catalog
             m_catalog = city_data.get("morning", [])

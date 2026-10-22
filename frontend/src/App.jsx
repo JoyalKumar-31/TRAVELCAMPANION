@@ -4,6 +4,7 @@ import SearchBar from './components/SearchBar';
 import HeroBanner from './components/HeroBanner';
 import RouteMap from './components/RouteMap';
 import WeatherAlertBanner from './components/WeatherAlertBanner';
+import Day2ReplannedComparison from './components/Day2ReplannedComparison';
 import BudgetCard from './components/BudgetCard';
 import ItineraryTimeline from './components/ItineraryTimeline';
 import PlacesGallery from './components/PlacesGallery';
@@ -19,22 +20,37 @@ import {
   generateBookingLinks 
 } from './data/destinationData';
 
-export default function App() {
-  const [origin, setOrigin] = useState("Hyderabad, Telangana, India");
-  const [destination, setDestination] = useState("Switzerland (Zurich, Lucerne, Interlaken, Grindelwald)");
-  const [duration, setDuration] = useState(5);
-  const [travelersCount, setTravelersCount] = useState(2);
-  const [travelerType, setTravelerType] = useState("couple");
+function getTomorrowDateStr() {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().split('T')[0];
+}
 
-  const [totalBudget, setTotalBudget] = useState(120000);
-  const [usedBudget, setUsedBudget] = useState(85000);
+export default function App() {
+  // Initial trip configuration requested: Goa, India · 3 days · 4 travelers
+  const [origin, setOrigin] = useState("Hyderabad, Telangana, India");
+  const [destination, setDestination] = useState("Goa, India");
+  const [duration, setDuration] = useState(3);
+  const [travelersCount, setTravelersCount] = useState(4);
+  const [travelerType, setTravelerType] = useState("friends");
+  const [startDate, setStartDate] = useState(getTomorrowDateStr());
+
+  const [totalBudget, setTotalBudget] = useState(65000);
+  const [usedBudget, setUsedBudget] = useState(45000);
 
   const [itinerary, setItinerary] = useState(null);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
   const [hotels, setHotels] = useState([]);
 
+  // Weather & Replanning States
+  const [liveWeather, setLiveWeather] = useState(null);
+  const [simulatedAlert, setSimulatedAlert] = useState(null);
+  const [comparisonData, setComparisonData] = useState(null);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+
   const [isPlanning, setIsPlanning] = useState(false);
   const [isReplanning, setIsReplanning] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
 
   // Modals state
   const [selectedHotelForBooking, setSelectedHotelForBooking] = useState(null);
@@ -43,41 +59,42 @@ export default function App() {
   const [isSafetyModalOpen, setIsSafetyModalOpen] = useState(false);
 
   const destKey = getDestinationKey(destination);
-  const currentConfig = DESTINATION_CONFIG[destKey] || DESTINATION_CONFIG["switzerland"];
-  const [alertText, setAlertText] = useState(currentConfig.alert?.text);
+  const currentConfig = DESTINATION_CONFIG[destKey] || DESTINATION_CONFIG["goa"] || DESTINATION_CONFIG["switzerland"];
+  const [alertText, setAlertText] = useState(currentConfig?.alert?.text || "Rain alert detected for Day 2 outdoor activities.");
 
   // Fix: Ensure page is firmly at the top on initial load (never auto-scroll down)
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, []);
 
-  // Initial Load & Destination Swaps
+  // Initial Load & Destination / Parameter Swaps
   useEffect(() => {
     // 1. Recalculate dynamic budget in ₹ INR
     const groupMultiplier = travelersCount > 1 ? (1 + (travelersCount - 1) * 0.75) : 1;
-    const calcTotal = Math.round((currentConfig.baseRatePerDay || 4000) * duration * groupMultiplier);
+    const calcTotal = Math.round((currentConfig?.baseRatePerDay || 4500) * duration * groupMultiplier);
     const calcUsed = Math.round(calcTotal * 0.73);
     setTotalBudget(calcTotal);
     setUsedBudget(calcUsed);
 
     // 2. Update Alert Text
-    setAlertText(currentConfig.alert?.text);
+    setAlertText(currentConfig?.alert?.text || "Rain alert detected for Day 2 outdoor activities.");
 
     // 3. Instant 0ms Lodges Display from Client Knowledge Base
     const cleanCity = destination.split("(")[0].split(",")[0].trim();
     const isIntl = ["switzerland", "paris", "dubai", "tokyo", "rome", "london", "singapore", "bali", "maldives"].includes(destKey);
-    const clientStays = HOTELS_DATABASE[destKey] || HOTELS_DATABASE["switzerland"];
-    const enrichedStays = clientStays.map(h => ({
+    const clientStays = HOTELS_DATABASE[destKey] || HOTELS_DATABASE["goa"] || HOTELS_DATABASE["switzerland"];
+    const enrichedStays = (clientStays || []).map(h => ({
       ...h,
       booking_links: h.booking_links || generateBookingLinks(h.name, cleanCity, isIntl)
     }));
     setHotels(enrichedStays);
 
-    // 4. Background Sync with FastAPI Backend for fresh hotels & itinerary
+    // 4. Background Sync with FastAPI Backend for fresh hotels, weather & itinerary
     syncDay1HotelsFromAPI(destination);
-    generateItineraryViaAgents(destination, duration, travelersCount, travelerType, calcTotal);
+    fetchLiveWeather(destination, startDate, duration);
+    generateItineraryViaAgents(destination, duration, travelersCount, travelerType, calcTotal, startDate);
 
-  }, [destination, duration, travelersCount, travelerType]);
+  }, [destination, duration, travelersCount, travelerType, startDate]);
 
   // Sync Day 1 Lodges via Backend
   async function syncDay1HotelsFromAPI(destName) {
@@ -98,8 +115,22 @@ export default function App() {
     }
   }
 
+  // Fetch Live Meteorological Weather Forecast from Open-Meteo
+  async function fetchLiveWeather(destName, sDate, durDays) {
+    try {
+      const url = `/api/weather/forecast?destination=${encodeURIComponent(destName)}&start_date=${encodeURIComponent(sDate || '')}&duration_days=${durDays || 3}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        setLiveWeather(data);
+      }
+    } catch (err) {
+      console.warn("Weather forecast fetch error:", err);
+    }
+  }
+
   // Synthesize Itinerary via Multi-Agent Graph
-  async function generateItineraryViaAgents(destName, durDays, tCount, tType, budgetVal) {
+  async function generateItineraryViaAgents(destName, durDays, tCount, tType, budgetVal, sDate) {
     setIsPlanning(true);
     try {
       const profile = {
@@ -108,6 +139,7 @@ export default function App() {
         budget: budgetVal,
         group_size: tCount,
         traveler_type: tType,
+        travel_start_date: sDate || startDate,
         interests: ["culture", "sightseeing", "local food", "nature"],
         accessibility_requirements: tType === "seniors" ? ["senior_friendly", "wheelchair_accessible"] : [],
         pace_preference: tType === "seniors" ? "relaxed" : "moderate"
@@ -123,6 +155,9 @@ export default function App() {
         if (data.success && data.itinerary) {
           setItinerary(data.itinerary);
           setActiveDayIndex(0);
+          // Reset comparison on fresh generation
+          setComparisonData(null);
+          setIsComparisonOpen(false);
         }
       }
     } catch (err) {
@@ -132,32 +167,64 @@ export default function App() {
     }
   }
 
-  // Trigger Adaptive Replanning via AdaptiveReplannerAgent
+  // Manually Simulate Rain Alert for Day 2 (Demonstration Purpose)
+  async function handleSimulateRain() {
+    setIsSimulating(true);
+    try {
+      const res = await fetch('/api/weather/simulate-rain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destination: destination, day_number: 2 })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSimulatedAlert(data);
+        setAlertText(data.description);
+      }
+    } catch (err) {
+      console.warn("Simulate rain API error:", err);
+    } finally {
+      setIsSimulating(false);
+    }
+  }
+
+  function handleClearSimulation() {
+    setSimulatedAlert(null);
+    setAlertText(currentConfig?.alert?.text || "Favorable weather conditions.");
+  }
+
+  // Trigger Adaptive Replanning via AdaptiveReplannerAgent (Keeps Day 1 & Day 3 intact, replaces Day 2 outdoor activities)
   async function handleTriggerReplanning() {
     setIsReplanning(true);
     try {
-      const disruption = {
-        day_number: currentConfig.alert?.day || 1,
-        time_slot: currentConfig.alert?.slot || "Morning",
-        disruption_type: "weather",
-        description: alertText,
-        severity: "medium"
+      const payload = {
+        itinerary: itinerary,
+        affected_day: 2,
+        disruption_description: simulatedAlert 
+          ? simulatedAlert.description 
+          : (liveWeather?.alert_details || "Severe monsoon torrential rain downpour affecting Day 2 outdoor activities"),
+        is_simulated: Boolean(simulatedAlert)
       };
 
-      const res = await fetch('/api/itinerary/adapt', {
+      const res = await fetch('/api/itinerary/replan-day', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          itinerary: itinerary,
-          disruption: disruption
-        })
+        body: JSON.stringify(payload)
       });
+
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
           setItinerary(data.updated_itinerary);
-          setAlertText(`✔ Replanning Executed: ${data.adaptation_result?.reason_for_change || 'Alternative indoor venue substituted.'}`);
-          setActiveDayIndex(Math.max(0, (disruption.day_number || 1) - 1));
+          setComparisonData(data);
+          setIsComparisonOpen(true);
+          setActiveDayIndex(1); // Set Day 2 active
+          
+          // Scroll to comparison section smoothly
+          setTimeout(() => {
+            const el = document.getElementById("day2-comparison-section");
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 150);
         }
       }
     } catch (err) {
@@ -278,7 +345,7 @@ export default function App() {
             duration={duration}
             travelersCount={travelersCount}
             travelerType={travelerType}
-            heroImg={currentConfig.heroImg}
+            heroImg={currentConfig?.heroImg}
             onSelectDestination={setDestination}
           />
 
@@ -288,32 +355,52 @@ export default function App() {
             duration={duration}
             travelersCount={travelersCount}
             travelerType={travelerType}
+            startDate={startDate}
+            onStartDateChange={setStartDate}
             isPlanning={isPlanning}
             onOriginChange={setOrigin}
             onDestinationChange={setDestination}
             onDurationChange={setDuration}
             onTravelersCountChange={setTravelersCount}
             onPersonaSelect={handlePersonaSelect}
-            onExecutePlanning={() => generateItineraryViaAgents(destination, duration, travelersCount, travelerType, totalBudget)}
+            onExecutePlanning={() => generateItineraryViaAgents(destination, duration, travelersCount, travelerType, totalBudget, startDate)}
           />
         </section>
 
         {/* 3. Core 2-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* Main Column (8 Cols): Weather Alert, Day-by-Day Timeline, Verified Lodges */}
+          {/* Main Column (8 Cols): Weather Alert, Day 2 Comparison, Timeline, Verified Lodges */}
           <div className="lg:col-span-8 space-y-6">
             
             {/* Live Weather Forecast & Disruption Alert Banner */}
             <div id="weather-alert-section">
               <WeatherAlertBanner 
                 destination={destination}
-                weather={currentConfig.weather}
+                weather={currentConfig?.weather}
+                liveWeather={liveWeather}
+                simulatedAlert={simulatedAlert}
                 alertText={alertText}
                 isReplanning={isReplanning}
+                isSimulating={isSimulating}
                 onTriggerReplanning={handleTriggerReplanning}
+                onSimulateRain={handleSimulateRain}
+                onClearSimulation={handleClearSimulation}
+                startDate={startDate}
+                duration={duration}
               />
             </div>
+
+            {/* AI-POWERED SIDE-BY-SIDE DAY 2 REPLANNING COMPARISON (Rendered when replanned) */}
+            {isComparisonOpen && comparisonData && (
+              <div id="day2-comparison-section">
+                <Day2ReplannedComparison 
+                  comparisonData={comparisonData}
+                  destination={destination}
+                  onDismiss={() => setIsComparisonOpen(false)}
+                />
+              </div>
+            )}
 
             {/* Iconic Places Photo Showcase & Attractions */}
             <div id="places-gallery-section">
@@ -330,6 +417,8 @@ export default function App() {
                 activeDayIndex={activeDayIndex}
                 onSelectDayIndex={setActiveDayIndex}
                 isLoading={isPlanning}
+                hasComparisonData={Boolean(comparisonData)}
+                onOpenComparison={() => setIsComparisonOpen(true)}
               />
             </div>
 
@@ -392,7 +481,7 @@ export default function App() {
           if (newDays) setDuration(newDays);
           setTravelerType('friends');
           setIsGroupModalOpen(false);
-          generateItineraryViaAgents(destination, newDays || duration, newGroupCount, 'friends', totalBudget);
+          generateItineraryViaAgents(destination, newDays || duration, newGroupCount, 'friends', totalBudget, startDate);
         }}
       />
 

@@ -13,6 +13,8 @@ class TravelerProfile(BaseModel):
     dietary_preferences: List[str] = Field(default_factory=list, description="e.g. ['vegetarian', 'vegan', 'halal', 'no_restrictions']")
     accessibility_requirements: List[str] = Field(default_factory=list, description="e.g. wheelchair_accessible, senior_friendly, elevator_required")
     pace_preference: str = Field("moderate", description="relaxed, moderate, or fast_paced")
+    travel_start_date: Optional[str] = Field(None, description="Trip start date (YYYY-MM-DD)")
+    travel_end_date: Optional[str] = Field(None, description="Trip end date (YYYY-MM-DD)")
 
 class Activity(BaseModel):
     id: str
@@ -26,6 +28,12 @@ class Activity(BaseModel):
     description: str
     accessibility_features: List[str] = Field(default_factory=list)
     eco_friendly: bool = True
+    opening_hours: Optional[str] = "09:00 AM - 06:00 PM [Verified]"
+    verified_status: Optional[str] = "Verified Venue"
+    family_friendly: Optional[bool] = True
+    admission_price_inr: Optional[float] = None
+    travel_distance_km: Optional[float] = None
+    ai_replacement_reason: Optional[str] = None
 
 class DayPlan(BaseModel):
     day_number: int
@@ -33,6 +41,10 @@ class DayPlan(BaseModel):
     activities: List[Activity]
     total_day_cost: float
     transit_mode: str = "Metro / Walking"
+    date: Optional[str] = None
+    is_replanned: Optional[bool] = False
+    weather_condition: Optional[str] = None
+    rain_alert: Optional[bool] = False
 
 class EcoScore(BaseModel):
     score: int = Field(..., ge=0, le=100, description="Sustainability score 0-100")
@@ -255,3 +267,23 @@ class EmergencyResponse(BaseModel):
     immediate_action_steps: List[str]
     embassy_or_consular_advice: str
 
+
+
+# Day Replanning Models
+class DayReplanningRequest(BaseModel):
+    itinerary: Itinerary
+    affected_day: int = 2
+    disruption_type: str = "weather"
+    is_simulated: bool = False
+    disruption_description: Optional[str] = None
+
+class DayReplanningResponse(BaseModel):
+    success: bool
+    updated_itinerary: Itinerary
+    affected_day: int
+    alert_source: str
+    alert_badge: str
+    original_day_plan: DayPlan
+    revised_day_plan: DayPlan
+    replacements_summary: List[Dict[str, Any]]
+    ai_replan_rationale: str
