@@ -374,8 +374,16 @@ export default function App() {
 
       <GroupTravelModal 
         destination={destination}
+        duration={duration}
         isOpen={isGroupModalOpen}
         onClose={() => setIsGroupModalOpen(false)}
+        onApplyGroupPlan={(newGroupCount, newDays) => {
+          setTravelersCount(newGroupCount);
+          if (newDays) setDuration(newDays);
+          setTravelerType('friends');
+          setIsGroupModalOpen(false);
+          generateItineraryViaAgents(destination, newDays || duration, newGroupCount, 'friends', totalBudget);
+        }}
       />
 
       {/* Upper-Side AI Chat Companion Drawer (Opens on demand) */}
