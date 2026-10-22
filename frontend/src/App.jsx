@@ -333,10 +333,14 @@ export default function App() {
               />
             </div>
 
-            {/* Verified Lodges & Hotels Near Day 1 Staying Hub */}
+            {/* Verified Lodges & Hotels Section (Multi-Day with Direct MakeMyTrip Booking) */}
             <div id="day1-hotels-section">
               <Day1HotelsSection 
                 destination={destination}
+                duration={duration}
+                activeDayIndex={activeDayIndex}
+                onSelectDayIndex={setActiveDayIndex}
+                itinerary={itinerary}
                 hotels={hotels}
                 onOpenBookingModal={(hotel) => setSelectedHotelForBooking(hotel)}
               />

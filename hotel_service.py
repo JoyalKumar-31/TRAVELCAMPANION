@@ -571,51 +571,50 @@ def get_destination_hotel_key(destination_name: str) -> str:
 def generate_booking_redirect_url(hotel_name: str, destination: str, is_international: bool = False) -> Dict[str, str]:
     """
     Generates real partner booking search links pre-populated with hotel name and destination city.
+    MakeMyTrip is configured as the primary partner booking portal.
     """
-    query = f"{hotel_name} {destination}"
+    clean_dest = destination.split("(")[0].split(",")[0].strip()
+    query = f"{hotel_name} {clean_dest}"
     encoded_query = urllib.parse.quote_plus(query)
-    encoded_dest = urllib.parse.quote_plus(destination)
-    encoded_hotel = urllib.parse.quote_plus(hotel_name)
+    encoded_dest = urllib.parse.quote_plus(clean_dest)
 
-    # Google Hotels Direct Search (Aggregates MakeMyTrip, Agoda, Booking.com, and direct hotel sites)
-    google_hotels_url = f"https://www.google.com/travel/hotels?q={encoded_query}"
-
-    # MakeMyTrip URL for Indian domestic lodges and hotels
-    makemytrip_url = f"https://www.makemytrip.com/hotels/hotel-listing/?city={encoded_dest}&searchText={encoded_hotel}"
-
-    # Booking.com URL
+    # MakeMyTrip URL pre-populated with hotel and destination city
+    makemytrip_url = f"https://www.makemytrip.com/hotels/hotel-listing/?searchText={urllib.parse.quote_plus(hotel_name + ' ' + clean_dest)}&city={encoded_dest}"
+    google_hotels_url = f"https://www.google.com/travel/hotels?q={urllib.parse.quote_plus(hotel_name + ' ' + clean_dest + ' makemytrip')}"
     booking_url = f"https://www.booking.com/searchresults.html?ss={encoded_query}"
-
-    # Agoda URL
     agoda_url = f"https://www.agoda.com/search?text={encoded_query}"
 
-    primary_url = booking_url if is_international else makemytrip_url
-
     return {
-        "primary_url": primary_url,
-        "google_hotels_url": google_hotels_url,
+        "primary_url": makemytrip_url,
         "makemytrip_url": makemytrip_url,
+        "google_hotels_url": google_hotels_url,
         "booking_url": booking_url,
         "agoda_url": agoda_url
     }
 
 def get_day1_hotels_for_destination(destination_name: str, day_number: int = 1) -> List[Dict[str, Any]]:
     """
-    Retrieves authentic lodges & hotels near Day 1 staying hub with room sharing options
-    and generates dynamic booking links.
+    Retrieves authentic lodges & hotels near Day X staying hub with room sharing options
+    and generates dynamic MakeMyTrip booking links.
     """
     key = get_destination_hotel_key(destination_name)
     hotels = HOTELS_DATABASE.get(key, HOTELS_DATABASE["goa"])
     is_intl = key in ["switzerland", "paris", "dubai", "tokyo", "rome", "london", "singapore", "bali", "new_york"]
-
     clean_city = destination_name.split("(")[0].split(",")[0].strip()
 
+    # Filter for hotels matching requested day
+    day_hotels = [h for h in hotels if h.get("day") == day_number]
+    if not day_hotels:
+        cycle_day = ((day_number - 1) % 5) + 1
+        day_hotels = [h for h in hotels if h.get("day") == cycle_day]
+    if not day_hotels:
+        day_hotels = hotels
+
     result = []
-    for h in hotels:
+    for h in day_hotels:
         item = dict(h)
-        # Attach dynamic redirection booking links
-        item["booking_links"] = generate_booking_redirect_url(item["name"], clean_city, is_international=is_intl)
         item["day_number"] = day_number
+        item["booking_links"] = generate_booking_redirect_url(item["name"], clean_city, is_international=is_intl)
         result.append(item)
 
     return result

@@ -40,7 +40,7 @@ export default function Navbar({ onOpenGroupModal, onScrollToSection, onOpenSafe
             className="px-3.5 py-1.5 rounded-xl hover:text-slate-900 hover:bg-white transition flex items-center gap-1.5"
           >
             <i className="fa-solid fa-hotel text-slate-400"></i>
-            <span>Day 1 Stays</span>
+            <span>Verified Stays</span>
           </button>
 
           <button 

@@ -1,12 +1,114 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getHotelsForDay, getDestinationKey, generateBookingLinks } from '../data/destinationData';
+
+// Hub names by destination and day index for quick visual labeling
+const DAY_HUBS_DIRECTORY = {
+  switzerland: [
+    { day: 1, hub: "Zurich Old Town & Limmat Hub", landmarks: "Niederdorf, Grossmünster & Lake Zurich" },
+    { day: 2, hub: "Lucerne Chapel Bridge Hub", landmarks: "Kapellbrücke, Lake Lucerne & Lion Monument" },
+    { day: 3, hub: "Interlaken Valley Hub", landmarks: "Harder Kulm, Lake Thun & Aare River" },
+    { day: 4, hub: "Grindelwald First Alpine Hub", landmarks: "First Cliff Walk & Eiger Glacier Express" },
+    { day: 5, hub: "Lauterbrunnen & Jungfrau Hub", landmarks: "Staubbach Falls & Top of Europe Railway" }
+  ],
+  goa: [
+    { day: 1, hub: "North Goa Baga Hub", landmarks: "Baga Beach, Tito's Lane & Watersports" },
+    { day: 2, hub: "Panaji & Fontainhas Heritage Hub", landmarks: "Old Latin Quarter & Mandovi Riverfront" },
+    { day: 3, hub: "South Goa Palolem Coastal Hub", landmarks: "Palolem Beach & Colva Sunset Shore" },
+    { day: 4, hub: "Dudhsagar Jungle Foothills Hub", landmarks: "Dudhsagar Waterfalls & Spice Plantations" },
+    { day: 5, hub: "Vagator & Chapora Fort Hub", landmarks: "Chapora Fort, Vagator Beach & Anjuna Coast" }
+  ],
+  hyderabad: [
+    { day: 1, hub: "Old City Charminar Hub", landmarks: "Charminar, Chowmahalla Palace & Laad Bazaar" },
+    { day: 2, hub: "Golconda & Banjara Hills Hub", landmarks: "Golconda Fort Citadel & Qutb Shahi Tombs" },
+    { day: 3, hub: "Hussain Sagar & Necklace Road Hub", landmarks: "Hussain Sagar Lake, Buddha Statue & Birla Mandir" },
+    { day: 4, hub: "Ramoji Film City Hub", landmarks: "Ramoji Studio Complex & Film Gardens" },
+    { day: 5, hub: "Hitec City & Shilparamam Hub", landmarks: "Shilparamam Arts Village & Durgam Cheruvu" }
+  ],
+  vizag: [
+    { day: 1, hub: "RK Beach & Submarine Hub", landmarks: "INS Kursura Submarine & RK Beach Promenade" },
+    { day: 2, hub: "Rushikonda & Kailasagiri Hub", landmarks: "Rushikonda Blue Flag Beach & Hilltop Ropeway" },
+    { day: 3, hub: "Araku Valley Mountain Hub", landmarks: "Araku Coffee Plantations & Tribal Heritage Museum" },
+    { day: 4, hub: "Borra Caves Valley Hub", landmarks: "Borra Limestone Caves & Gosthani River Gorge" },
+    { day: 5, hub: "Bheemili Dutch Coast Hub", landmarks: "Bheemunipatnam Dutch Fort & Yarada Beach" }
+  ],
+  paris: [
+    { day: 1, hub: "Eiffel Tower 7th Arr. Hub", landmarks: "Champ de Mars & Seine River Bir-Hakeim" },
+    { day: 2, hub: "Louvre Museum 1st Arr. Hub", landmarks: "Louvre Pyramid, Tuileries & Palais-Royal" },
+    { day: 3, hub: "Montmartre Hillside Hub", landmarks: "Sacré-Cœur Basilica & Artists Square" },
+    { day: 4, hub: "Latin Quarter & Notre-Dame Hub", landmarks: "Sorbonne, Saint-Germain & Seine Bridges" },
+    { day: 5, hub: "Palace of Versailles Hub", landmarks: "Château de Versailles & Royal Gardens" }
+  ],
+  dubai: [
+    { day: 1, hub: "Downtown Dubai Burj Hub", landmarks: "Burj Khalifa, Dubai Mall & Fountain Show" },
+    { day: 2, hub: "Dubai Marina & JBR Beach Hub", landmarks: "JBR The Walk & Marina Yacht Harbor" },
+    { day: 3, hub: "Palm Jumeirah Island Hub", landmarks: "The Pointe & Atlantis Boardwalk" },
+    { day: 4, hub: "Old Dubai & Creek Hub", landmarks: "Al Fahidi Historical District & Gold Souk" },
+    { day: 5, hub: "Desert Gateway & Safari Hub", landmarks: "Red Sand Dunes & Arabian Starlight Camp" }
+  ],
+  kerala: [
+    { day: 1, hub: "Fort Kochi Colonial Hub", landmarks: "Chinese Fishing Nets & Mattancherry Palace" },
+    { day: 2, hub: "Alleppey Backwaters Hub", landmarks: "Vembanad Lake Houseboat Jetty & Coir Islands" },
+    { day: 3, hub: "Munnar Tea Plantations Hub", landmarks: "Emerald Tea Slopes & Mattupetty Dam" },
+    { day: 4, hub: "Thekkady Periyar Wildlife Hub", landmarks: "Periyar Tiger Sanctuary & Spice Walk" },
+    { day: 5, hub: "Kovalam Lighthouse Beach Hub", landmarks: "Lighthouse Beach & Coastal Sunset Promenade" }
+  ],
+  delhi_agra: [
+    { day: 1, hub: "Taj Mahal East Gate Hub", landmarks: "Taj Mahal Sunrise & Mehtab Bagh" },
+    { day: 2, hub: "Agra Fort & Mughal Citadel Hub", landmarks: "Agra Fort & Fatehpur Sikri Palace" },
+    { day: 3, hub: "Central Delhi Connaught Hub", landmarks: "Connaught Place, India Gate & Janpath" },
+    { day: 4, hub: "Old Delhi Chandni Chowk Hub", landmarks: "Red Fort Lahori Gate & Paranthe Wali Gali" },
+    { day: 5, hub: "South Delhi Qutub Hub", landmarks: "Qutub Minar Victory Tower & Hauz Khas" }
+  ],
+  kashmir: [
+    { day: 1, hub: "Dal Lake Srinagar Hub", landmarks: "Dal Lake Shikara Ghat & Floating Gardens" },
+    { day: 2, hub: "Gulmarg Gondola Snow Hub", landmarks: "Gulmarg Gondola Cableway & Alpine Slopes" },
+    { day: 3, hub: "Pahalgam Betaab Valley Hub", landmarks: "Lidder Riverfront & Aru Valley Pine Forest" },
+    { day: 4, hub: "Sonamarg Glacier Hub", landmarks: "Thajiwas Glacier & Sindh Valley Meadow" },
+    { day: 5, hub: "Srinagar Mughal Gardens Hub", landmarks: "Nishat Bagh, Shalimar Bagh & Old City" }
+  ]
+};
 
 export default function Day1HotelsSection({ 
-  destination, 
+  destination = "Switzerland (Zurich, Lucerne, Interlaken, Grindelwald)", 
+  duration = 5,
+  activeDayIndex = 0,
+  onSelectDayIndex,
+  itinerary,
   hotels, 
   onOpenBookingModal 
 }) {
   const cleanCity = (destination || "").split("(")[0].split(",")[0].trim();
+  const destKey = getDestinationKey(destination);
+  const isIntl = ["switzerland", "paris", "dubai", "tokyo", "rome", "london", "singapore", "bali", "maldives"].includes(destKey);
+
+  // Active day index state (synced with parent activeDayIndex)
+  const [selectedDayIdx, setSelectedDayIdx] = useState(activeDayIndex || 0);
   const [selectedSharingMap, setSelectedSharingMap] = useState({});
+
+  useEffect(() => {
+    if (activeDayIndex !== undefined && activeDayIndex !== selectedDayIdx) {
+      setSelectedDayIdx(activeDayIndex);
+    }
+  }, [activeDayIndex]);
+
+  // Retrieve current day's real lodges
+  const dayNumber = selectedDayIdx + 1;
+  const hubList = DAY_HUBS_DIRECTORY[destKey] || DAY_HUBS_DIRECTORY["switzerland"];
+  const currentHub = hubList[selectedDayIdx % hubList.length] || {
+    day: dayNumber,
+    hub: `${cleanCity} Day ${dayNumber} Staying Hub`,
+    landmarks: `Day ${dayNumber} scheduled destinations & activities`
+  };
+
+  // Get matching hotels for the selected day
+  const displayedHotels = getHotelsForDay(destKey, dayNumber, cleanCity, isIntl);
+
+  function handleSelectDay(idx) {
+    setSelectedDayIdx(idx);
+    if (onSelectDayIndex) {
+      onSelectDayIndex(idx);
+    }
+  }
 
   function handleSelectSharing(hotelId, optIdx) {
     setSelectedSharingMap(prev => ({
@@ -15,11 +117,15 @@ export default function Day1HotelsSection({
     }));
   }
 
+  // Construct day tabs array based on duration (1 to 14 days)
+  const totalDays = Math.max(1, Math.min(14, Number(duration) || 5));
+  const dayTabs = Array.from({ length: totalDays }, (_, i) => i);
+
   return (
     <div id="hotels-section" className="bg-white rounded-[2.5rem] p-5 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
       
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+      {/* Section Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-sky-500 text-white flex items-center justify-center font-bold text-base shadow-md shadow-brand-500/20">
@@ -27,29 +133,85 @@ export default function Day1HotelsSection({
             </div>
             <div>
               <h3 className="font-heading font-black text-slate-900 text-lg sm:text-xl">
-                Verified Lodges & Stays Near Day 1 ({cleanCity})
+                Verified Lodges & Stays Near Day {dayNumber} ({currentHub.hub.split(" Hub")[0]})
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Handpicked budget lodges, heritage inns & hostels located right beside Day 1 morning stops with per-person sharing prices
+                Handpicked real lodges, heritage inns & chalets located right beside <strong>Day {dayNumber}</strong> stops ({currentHub.landmarks}) with MakeMyTrip booking & sharing rates
               </p>
             </div>
           </div>
         </div>
 
-        <span className="text-xs font-black text-emerald-800 bg-emerald-50 px-3.5 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5 shrink-0 self-start sm:self-auto shadow-xs">
-          <i className="fa-solid fa-shield-check text-emerald-600"></i>
-          <span>100% Proximity Verified</span>
-        </span>
+        <div className="flex items-center gap-2 self-start lg:self-auto flex-wrap">
+          <span className="text-xs font-black text-emerald-800 bg-emerald-50 px-3.5 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5 shadow-xs">
+            <i className="fa-solid fa-shield-check text-emerald-600"></i>
+            <span>Day {dayNumber} Proximity Verified</span>
+          </span>
+          <span className="text-xs font-black text-rose-700 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-200 flex items-center gap-1.5 shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-pulse"></span>
+            <span>MakeMyTrip Partner Direct</span>
+          </span>
+        </div>
       </div>
 
-      {/* Hotel Cards List */}
+      {/* DAY-BY-DAY INTERACTIVE SELECTOR TABS */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i className="fa-solid fa-calendar-days text-brand-600"></i>
+            <span>Select Day to View Nearby Lodges for that Specific Place:</span>
+          </span>
+          <span className="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">
+            Click Day 1, Day 2, Day 3...
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          {dayTabs.map((dayIdx) => {
+            const isSelected = dayIdx === selectedDayIdx;
+            const hubInfo = hubList[dayIdx % hubList.length] || { hub: `Day ${dayIdx + 1} Hub` };
+            const shortHubName = hubInfo.hub.replace(" Hub", "").split(" & ")[0];
+
+            return (
+              <button
+                key={dayIdx}
+                onClick={() => handleSelectDay(dayIdx)}
+                className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold whitespace-nowrap transition-all duration-200 flex items-center gap-2 cursor-pointer shrink-0 ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-500/25 scale-105'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200/60'
+                }`}
+              >
+                <i className={`fa-solid ${isSelected ? 'fa-hotel' : 'fa-bed'} text-[11px]`}></i>
+                <span>Day {dayIdx + 1}</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium ${
+                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-200/80 text-slate-600'
+                }`}>
+                  {shortHubName}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Hotel Cards List for the Selected Day */}
       <div className="space-y-5">
-        {(!hotels || hotels.length === 0) ? (
-          <p className="text-xs text-slate-500 py-8 text-center font-bold">Discovering verified lodges near Day 1 staying hub...</p>
+        {(!displayedHotels || displayedHotels.length === 0) ? (
+          <p className="text-xs text-slate-500 py-8 text-center font-bold">
+            Discovering verified lodges near Day {dayNumber} staying hub...
+          </p>
         ) : (
-          hotels.map((h) => {
+          displayedHotels.map((h) => {
             const currentSelectedIdx = selectedSharingMap[h.id] !== undefined ? selectedSharingMap[h.id] : 0;
             const activeSharing = h.sharing_options?.[currentSelectedIdx] || h.sharing_options?.[0];
+
+            // MakeMyTrip verified direct hotel search URL
+            const mmtSearchUrl = h.booking_links?.makemytrip_url || 
+              `https://www.makemytrip.com/hotels/hotel-listing/?searchText=${encodeURIComponent(h.name + " " + cleanCity)}&city=${encodeURIComponent(cleanCity)}`;
+            
+            const googleHotelsUrl = h.booking_links?.google_hotels_url || 
+              `https://www.google.com/travel/hotels?q=${encodeURIComponent(h.name + " " + cleanCity + " makemytrip")}`;
 
             return (
               <div 
@@ -66,7 +228,7 @@ export default function Day1HotelsSection({
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
                   <span className="absolute top-3 left-3 px-3 py-1 rounded-xl bg-slate-950/80 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider border border-white/20">
-                    {h.type}
+                    Day {dayNumber} · {h.type}
                   </span>
                 </div>
 
@@ -163,26 +325,34 @@ export default function Day1HotelsSection({
 
                   {/* Booking & Partner Action Buttons */}
                   <div className="flex flex-wrap items-center gap-3 pt-2">
-                    <button 
-                      onClick={() => onOpenBookingModal(h)}
-                      className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-md shadow-brand-600/25 transition flex items-center gap-2"
-                    >
-                      <i className="fa-solid fa-calendar-check"></i>
-                      <span>Instant Book Stay</span>
-                    </button>
-
+                    
+                    {/* PRIMARY ACTION: DIRECT MAKEMYTRIP BOOKING BUTTON */}
                     <a 
-                      href={h.booking_links?.primary_url || "https://www.makemytrip.com"} 
+                      href={mmtSearchUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-2"
+                      className="px-5 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-md shadow-red-500/25 transition flex items-center gap-2 cursor-pointer group"
+                      title={`Book ${h.name} on MakeMyTrip (${cleanCity})`}
                     >
-                      <span>Partner Booking Portal</span>
-                      <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                      <span className="w-5 h-5 rounded-md bg-white text-red-600 font-black text-[9px] flex items-center justify-center shadow-xs">
+                        MMT
+                      </span>
+                      <span>Book on MakeMyTrip</span>
+                      <i className="fa-solid fa-arrow-up-right-from-square text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
                     </a>
 
+                    {/* SECONDARY ACTION: ROOM SHARING & INSTANT RESERVATION */}
+                    <button 
+                      onClick={() => onOpenBookingModal(h)}
+                      className="px-4 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 font-extrabold text-xs rounded-xl border border-brand-200 transition flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                      <i className="fa-solid fa-bed text-brand-600"></i>
+                      <span>Room Sharing & Details</span>
+                    </button>
+
+                    {/* TERTIARY ACTION: GOOGLE HOTELS PRICE COMPARISON */}
                     <a 
-                      href={h.booking_links?.google_hotels_url || "https://www.google.com/travel/hotels"} 
+                      href={googleHotelsUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="px-3.5 py-2.5 text-slate-500 hover:text-slate-900 text-xs font-bold transition flex items-center gap-1.5"

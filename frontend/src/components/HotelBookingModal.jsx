@@ -20,7 +20,11 @@ export default function HotelBookingModal({
   const isDorm = selectedOption?.type?.toLowerCase().includes("dorm") || selectedOption?.type?.toLowerCase().includes("bed");
   const totalPrice = isDorm ? (selectedOption.price_per_person_inr * guests) : selectedOption.total_inr;
 
-  const partnerPortalUrl = hotel.booking_links?.primary_url || hotel.booking_links?.google_hotels_url || "https://www.makemytrip.com";
+  // MakeMyTrip verified direct booking URL
+  const mmtBookingUrl = hotel.booking_links?.makemytrip_url || 
+    `https://www.makemytrip.com/hotels/hotel-listing/?searchText=${encodeURIComponent(hotel.name + " " + cleanCity)}&city=${encodeURIComponent(cleanCity)}`;
+
+  const partnerPortalUrl = mmtBookingUrl;
 
   function handleConfirmBooking() {
     const bookingId = "BK-LDG-" + Math.floor(10000 + Math.random() * 90000);
@@ -32,7 +36,7 @@ export default function HotelBookingModal({
     };
     setConfirmedBooking(bookingData);
     if (onNotifyAssistant) {
-      onNotifyAssistant(`🏨 Reserved Day 1 stay at ${hotel.name} (${selectedOption.type})! Reference ID: ${bookingId}. Total: ₹${totalPrice.toLocaleString()}. Free cancellation enabled.`);
+      onNotifyAssistant(`🏨 Reserved stay at ${hotel.name} (${selectedOption.type})! Reference ID: ${bookingId}. Total: ₹${totalPrice.toLocaleString()}. Free cancellation enabled.`);
     }
   }
 
@@ -156,19 +160,23 @@ export default function HotelBookingModal({
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                {/* PRIMARY ACTION: DIRECT MAKEMYTRIP LINK */}
                 <a 
-                  href={partnerPortalUrl} 
+                  href={mmtBookingUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-full sm:flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2"
+                  className="w-full sm:flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-lg shadow-red-600/25 transition flex items-center justify-center gap-2 cursor-pointer group"
                 >
-                  <i className="fa-solid fa-arrow-up-right-from-square text-[11px] text-slate-500"></i>
-                  <span>Book via MakeMyTrip / Portal ({cleanCity})</span>
+                  <span className="w-5 h-5 rounded-md bg-white text-red-600 font-black text-[9px] flex items-center justify-center shadow-xs">
+                    MMT
+                  </span>
+                  <span>Book on MakeMyTrip ({cleanCity})</span>
+                  <i className="fa-solid fa-arrow-up-right-from-square text-[11px] group-hover:translate-x-0.5 transition-transform"></i>
                 </a>
 
                 <button 
                   onClick={handleConfirmBooking}
-                  className="w-full sm:flex-1 py-3 px-4 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-md shadow-brand-600/20 transition flex items-center justify-center gap-2"
+                  className="w-full sm:flex-1 py-3 px-4 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-md shadow-brand-600/20 transition flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <i className="fa-solid fa-check"></i>
                   <span>Confirm Direct Lodge Booking</span>
@@ -183,7 +191,7 @@ export default function HotelBookingModal({
               </div>
               <h4 className="font-extrabold text-slate-900 text-lg">Lodge Reservation Confirmed!</h4>
               <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Your Day 1 stay has been verified. Free cancellation is enabled up to 24 hours prior to check-in.
+                Your stay has been recorded. You can also view or manage the live room listing directly on MakeMyTrip.
               </p>
 
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 max-w-md mx-auto text-left text-xs space-y-2">
@@ -205,19 +213,20 @@ export default function HotelBookingModal({
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-center gap-3">
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <a 
-                  href={partnerPortalUrl} 
+                  href={mmtBookingUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2"
+                  className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
                 >
-                  <i className="fa-solid fa-arrow-up-right-from-square"></i>
-                  <span>Open Partner Booking Listing</span>
+                  <span className="w-4 h-4 rounded bg-white text-red-600 font-black text-[8px] flex items-center justify-center">MMT</span>
+                  <span>Open on MakeMyTrip Portal</span>
+                  <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                 </a>
                 <button 
                   onClick={handleResetAndClose}
-                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition"
+                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer"
                 >
                   Close
                 </button>
