@@ -32,6 +32,43 @@ const SCAN_STAGES = [
   "Synthesizing architectural folklore & audio narration guide..."
 ];
 
+// Helper to identify generic camera/download filenames (e.g. OIP, IMG_1234, photo, screenshot, download)
+function isGenericFilename(fileName) {
+  if (!fileName) return true;
+  const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "").trim();
+  const lower = nameWithoutExt.toLowerCase();
+
+  // If 3 letters or fewer and not a known landmark abbreviation (e.g. USA, UK, UAE)
+  if (lower.length <= 3 && !['usa', 'uk', 'uae', 'ins'].includes(lower)) {
+    return true;
+  }
+
+  // Common generic image file prefixes and suffixes from cameras and search engines
+  const genericPrefixes = [
+    'oip', 'img', 'image', 'photo', 'pic', 'picture', 'screenshot', 'screen',
+    'snap', 'camera', 'capture', 'dsc', 'dscn', 'file', 'upload', 'download',
+    'unnamed', 'images', 'thumbnail', 'thumb', 'wallpaper', 'asset', 'preview',
+    'raw', 'output', 'temp', 'pasted'
+  ];
+
+  const genericPattern = new RegExp(`^(${genericPrefixes.join('|')})[\\s_\\-\\d\\(\\)]*$`, 'i');
+  if (genericPattern.test(nameWithoutExt)) {
+    return true;
+  }
+
+  // Hexadecimal hashes or timestamp filenames (e.g. 1792675894384, a2bba9de)
+  if (/^[a-f0-9_\-]{6,}$/i.test(nameWithoutExt) || /^\d+$/.test(nameWithoutExt)) {
+    return true;
+  }
+
+  // If string contains no vowels (e.g. DSC, PNG, JPG)
+  if (!/[aeiouAEIOU]/.test(nameWithoutExt)) {
+    return true;
+  }
+
+  return false;
+}
+
 export default function VisionAIScannerModal({ isOpen, onClose, destination }) {
   const [selectedSample, setSelectedSample] = useState(SAMPLE_LANDMARKS[0]);
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -70,21 +107,19 @@ export default function VisionAIScannerModal({ isOpen, onClose, destination }) {
   if (!isOpen) return null;
 
   const currentPreview = uploadedImage || selectedSample.img;
-  const currentDisplayName = landmarkHint.trim() || (uploadedImage ? "Custom Uploaded Photo" : selectedSample.name);
+  const currentDisplayName = landmarkHint.trim() || (uploadedImage ? "Uploaded Monument Photo" : selectedSample.name);
 
   // Client-side fast image compressor & resizer
   function handleFileUpload(e) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Detect if file name contains meaningful words vs generic camera names (IMG_123, photo, screenshot)
-    const rawName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
-    const isGenericCameraName = /^(img|image|photo|pic|picture|screenshot|snap|camera|capture|dscn?|file|upload|download)[\s\d]*$/i.test(rawName);
-    
-    if (isGenericCameraName) {
+    // Detect if file name contains meaningful words vs generic camera/download names (OIP, IMG_123, photo, screenshot)
+    if (isGenericFilename(file.name)) {
       setLandmarkHint("");
     } else {
-      setLandmarkHint(rawName);
+      const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ").trim();
+      setLandmarkHint(cleanName);
     }
 
     const reader = new FileReader();
@@ -241,9 +276,11 @@ export default function VisionAIScannerModal({ isOpen, onClose, destination }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-4">
                   <div>
                     <span className="text-[10px] uppercase font-black text-amber-300 tracking-wider">
-                      {isLoading ? "⚡ Neural Scan in Progress..." : "Ready for Recognition"}
+                      {isLoading ? "⚡ Neural Scan in Progress..." : (scanResult ? "Identified Monument" : "Ready for Recognition")}
                     </span>
-                    <h5 className="text-white font-bold text-sm truncate">{currentDisplayName}</h5>
+                    <h5 className="text-white font-bold text-sm truncate">
+                      {scanResult ? scanResult.landmark_name : currentDisplayName}
+                    </h5>
                   </div>
                 </div>
 
@@ -287,7 +324,7 @@ export default function VisionAIScannerModal({ isOpen, onClose, destination }) {
                     type="text" 
                     value={landmarkHint} 
                     onChange={(e) => setLandmarkHint(e.target.value)} 
-                    placeholder={uploadedImage ? "e.g. Taj Mahal, Charminar, Colosseum..." : selectedSample.name}
+                    placeholder={uploadedImage ? "Auto-detecting landmark from photo... (or type name)" : selectedSample.name}
                     className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none font-semibold text-slate-800 bg-white"
                   />
                   {landmarkHint && (
