@@ -247,6 +247,42 @@ class SafetyEcoAgent:
                 "Bebinca (Multi-layered Goan coconut milk dessert)"
             ]
             return safety, eco, food
+        elif "switzerland" in dest_lower or "zurich" in dest_lower or "lucerne" in dest_lower or "interlaken" in dest_lower or "grindelwald" in dest_lower:
+            safety = SafetyInfo(
+                safety_rating="Exceptional (Top-Tier Global Safety Index)",
+                emergency_contacts={
+                    "Universal Emergency": "112",
+                    "Swiss Police (Polizei)": "117",
+                    "Medical Ambulance (Sanität)": "144",
+                    "Swiss Air-Rescue (Rega)": "1414",
+                    "Fire Service (Feuerwehr)": "118",
+                    "Tourist Assistance Hotline": "+41-800-100-200"
+                },
+                advisories=[
+                    "Universal Emergency 112 connects to English, German, French, and Italian dispatchers 24/7.",
+                    "Alpine weather can change quickly at high altitudes (Jungfraujoch/Titlis); check mountain webcams before departures.",
+                    "Mountain rescue insurance via Rega is available for hikers and winter sport enthusiasts."
+                ]
+            )
+            eco = EcoScore(
+                score=97,
+                green_transport_percent=94,
+                eco_friendly_attractions=10,
+                recommendations=[
+                    "Utilize the Swiss Travel System for 100% electrified trains, panoramic lake steamers, and cogwheel rails.",
+                    "Drink directly from thousands of fresh public mountain water fountains in Zurich, Lucerne, and Interlaken.",
+                    "Support car-free alpine eco-villages like Zermatt, Mürren, and Wengen."
+                ]
+            )
+            food = [
+                "Authentic Swiss Cheese Fondue (Gruyère & Emmental) with crusty bread cubes",
+                "Crispy Swiss Rösti with fried egg & alpine melted raclette cheese",
+                "Zürcher Geschnetzeltes (Sliced veal in white wine cream sauce with mushrooms)",
+                "Handcrafted Swiss Pralines & Truffles at Confiserie Sprüngli",
+                "Warm Engadine Nut Tart (Nusstorte) with mountain honey"
+            ]
+            return safety, eco, food
+
         elif "tokyo" in dest_lower or "japan" in dest_lower:
             safety = SafetyInfo(
                 safety_rating="Exceptional (Rank 1/100)",

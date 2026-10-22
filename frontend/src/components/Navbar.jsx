@@ -71,6 +71,16 @@ export default function Navbar({ onOpenGroupModal, onScrollToSection, onOpenSafe
         {/* Right Header Badges & Actions */}
         <div className="flex items-center gap-2 sm:gap-2.5">
           
+          {/* Emergency SOS Shield Trigger (Visible across all screens) */}
+          <button
+            onClick={onOpenSafetyModal}
+            className="px-2.5 sm:px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-black border border-rose-200/90 transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer"
+            title="Tourist Safety & SOS Emergency Hub (Tap to Call)"
+          >
+            <i className="fa-solid fa-shield-halved text-rose-600 animate-pulse text-xs"></i>
+            <span className="font-extrabold tracking-wide">SOS</span>
+          </button>
+
           {/* Currency Indicator (₹ INR) */}
           <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50/90 text-emerald-800 rounded-xl border border-emerald-200 text-xs font-black shadow-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>

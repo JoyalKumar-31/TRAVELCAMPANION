@@ -11,6 +11,7 @@ import Day1HotelsSection from './components/Day1HotelsSection';
 import HotelBookingModal from './components/HotelBookingModal';
 import GroupTravelModal from './components/GroupTravelModal';
 import AIChatCompanion from './components/AIChatCompanion';
+import SOSShieldModal from './components/SOSShieldModal';
 import { 
   DESTINATION_CONFIG, 
   HOTELS_DATABASE, 
@@ -39,6 +40,7 @@ export default function App() {
   const [selectedHotelForBooking, setSelectedHotelForBooking] = useState(null);
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isSafetyModalOpen, setIsSafetyModalOpen] = useState(false);
 
   const destKey = getDestinationKey(destination);
   const currentConfig = DESTINATION_CONFIG[destKey] || DESTINATION_CONFIG["switzerland"];
@@ -228,6 +230,13 @@ export default function App() {
         }
         break;
 
+      case "OPEN_SAFETY":
+      case "OPEN_SOS":
+      case "SOS":
+      case "EMERGENCY":
+        setIsSafetyModalOpen(true);
+        break;
+
       default:
         console.warn("Unrecognized companion action:", action);
     }
@@ -240,7 +249,7 @@ export default function App() {
       <Navbar 
         onOpenGroupModal={() => setIsGroupModalOpen(true)}
         onScrollToSection={scrollToSection}
-        onOpenSafetyModal={() => alert(`🛡️ Tourist Safety & SOS Emergency Hub for ${destination.split(',')[0]}:\n• Universal Emergency Helpline: 112\n• Local Police Control: 100 / 112\n• Medical Ambulance: 108 / 112\n• 24/7 Diplomatic & Tourist Police Active.`)}
+        onOpenSafetyModal={() => setIsSafetyModalOpen(true)}
         onToggleChat={() => setIsChatOpen(prev => !prev)}
       />
 
@@ -248,7 +257,7 @@ export default function App() {
       {!isChatOpen && (
         <button
           onClick={() => setIsChatOpen(true)}
-          className="fixed top-20 right-4 sm:right-8 z-30 px-3.5 py-2 rounded-2xl bg-white/95 backdrop-blur-md hover:bg-white text-slate-800 text-xs font-black shadow-xl shadow-brand-500/15 border border-slate-200/90 flex items-center gap-2 transition hover:scale-105 active:scale-95 animate-fadeIn"
+          className="fixed top-20 right-4 sm:right-8 z-30 px-3.5 py-2 rounded-2xl bg-white/95 backdrop-blur-md hover:bg-white text-slate-800 text-xs font-black shadow-xl shadow-brand-500/15 border border-slate-200/90 flex items-center gap-2 transition hover:scale-105 active:scale-95 animate-fadeIn cursor-pointer"
           title="Open AI Travel Assistant"
         >
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -397,6 +406,12 @@ export default function App() {
         onExecuteAction={handleExecuteCompanionAction}
       />
 
+      {/* 5. SOS Emergency Hub & Tourist Safety Shield Modal */}
+      <SOSShieldModal
+        isOpen={isSafetyModalOpen}
+        onClose={() => setIsSafetyModalOpen(false)}
+        destination={destination}
+      />
 
       {/* Footer */}
       <footer className="mt-16 bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 font-medium">
