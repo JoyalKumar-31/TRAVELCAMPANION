@@ -23,3 +23,13 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@keyframes scanLaser {
+  0% { top: 2%; opacity: 0.85; }
+  50% { top: 96%; opacity: 1; }
+  100% { top: 2%; opacity: 0.85; }
+}
+
+.animate-scan-laser {
+  animation: scanLaser 2.2s ease-in-out infinite;
+}
