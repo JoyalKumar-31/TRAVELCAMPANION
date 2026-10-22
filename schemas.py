@@ -84,11 +84,34 @@ class AdaptationResult(BaseModel):
     top_alternatives: List[AlternativeOption] = Field(default_factory=list)
 
 # Group Dynamics Models
+class ExpenseBreakdown(BaseModel):
+    category: str
+    amount_total: float
+    amount_per_person: float
+    percentage: int
+    note: str
+
+class MemberSplitSummary(BaseModel):
+    name: str
+    stated_budget: float
+    fair_share: float
+    balance: float
+    status: str
+
 class GroupMember(BaseModel):
     name: str
-    interests: List[str]
-    max_budget: float
+    interests: List[str] = Field(default_factory=list)
+    max_budget: Optional[float] = None
+    budget_limit: Optional[float] = None
     accessibility_needs: List[str] = Field(default_factory=list)
+
+    @property
+    def effective_budget(self) -> float:
+        if self.max_budget is not None and self.max_budget > 0:
+            return float(self.max_budget)
+        if self.budget_limit is not None and self.budget_limit > 0:
+            return float(self.budget_limit)
+        return 25000.0
 
 class AccommodationOption(BaseModel):
     id: str
@@ -120,12 +143,17 @@ class GroupConsensusRequest(BaseModel):
 
 class GroupConsensusResult(BaseModel):
     destination: str
+    duration_days: int = 5
+    group_size: int = 4
     aggregated_interests: List[str]
     recommended_shared_budget: float
     cost_per_person: float
+    harmonized_budget_limit: Optional[float] = None
     consensus_summary: str
     voting_compromises: List[str]
     split_details: Dict[str, float]
+    expense_breakdown: List[ExpenseBreakdown] = Field(default_factory=list)
+    member_splits: List[MemberSplitSummary] = Field(default_factory=list)
     recommended_accommodations: List[AccommodationOption] = Field(default_factory=list)
     transportation_options: List[TransportationOption] = Field(default_factory=list)
 

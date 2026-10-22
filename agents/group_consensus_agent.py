@@ -1,20 +1,55 @@
+import os
 from typing import List, Dict
 from collections import Counter
 from schemas import (
     GroupConsensusRequest, 
     GroupConsensusResult, 
     GroupMember,
+    ExpenseBreakdown,
+    MemberSplitSummary,
     AccommodationOption,
     TransportationOption
 )
 from config import get_llm
 
+# Daily Baseline Rates per Person in ₹ INR based on Destination Tiers
+DESTINATION_DAILY_RATES: Dict[str, float] = {
+    "switzerland": 12000.0,
+    "paris": 13000.0,
+    "dubai": 11000.0,
+    "rome": 12500.0,
+    "tokyo": 11500.0,
+    "singapore": 10500.0,
+    "london": 13500.0,
+    "kashmir": 4200.0,
+    "goa": 3500.0,
+    "kerala": 3800.0,
+    "manali": 3400.0,
+    "delhi": 3200.0,
+    "agra": 3200.0,
+    "hyderabad": 2800.0,
+    "vizag": 2600.0,
+    "visakhapatnam": 2600.0,
+    "jaipur": 3000.0,
+    "rajasthan": 3000.0,
+    "varanasi": 2500.0,
+    "ladakh": 4500.0,
+    "ooty": 3000.0
+}
+
+def get_destination_base_rate(destination: str) -> float:
+    dest_lower = (destination or "").lower()
+    for key, rate in DESTINATION_DAILY_RATES.items():
+        if key in dest_lower:
+            return rate
+    return 3500.0
+
 class GroupConsensusAgent:
     """
     Solves group travel frictions:
-    - Aggregates multi-member preferences via Borda / Voting counts
-    - Identifies consensus vs elective compromises
-    - Calculates fair shared budget & equalized expense splitting
+    - Calculates destination-aware fair shared budget and per-person cost
+    - Computes proportional & equalized expense splitting across members
+    - Generates category breakdown (lodging, dining, activities, shared transit)
     - Recommends optimized group accommodations (villas, serviced apartments, suites)
     - Optimizes multi-traveler transportation (tempo traveler, metro passes, split cabs)
     """
@@ -27,6 +62,10 @@ class GroupConsensusAgent:
         if num_members == 0:
             raise ValueError("Group must contain at least 1 member.")
 
+        duration_days = max(1, request.duration_days)
+        destination_name = request.destination or "Destination"
+        clean_city = destination_name.split(",")[0].split("(")[0].strip()
+
         # 1. Aggregate Interests
         all_interests = []
         for m in members:
@@ -34,60 +73,123 @@ class GroupConsensusAgent:
         
         interest_counts = Counter(all_interests)
         ranked_interests = [item for item, count in interest_counts.most_common()]
+        if not ranked_interests:
+            ranked_interests = ["sightseeing", "culture", "local food", "relaxation"]
 
-        # 2. Fair Shared Budget Calculation
-        min_budget_in_group = min(m.max_budget for m in members)
-        avg_budget = sum(m.max_budget for m in members) / num_members
-        
-        recommended_per_person = round(min(min_budget_in_group * 1.05, avg_budget), 2)
+        # 2. Destination-Aware Fair Budget Calculation
+        base_rate_per_day = get_destination_base_rate(destination_name)
+        # Groups of 3+ benefit from lodging room sharing and shared cabs
+        group_economy_factor = 0.80 if num_members >= 4 else (0.88 if num_members >= 2 else 1.0)
+        dest_benchmark_per_person = round(base_rate_per_day * duration_days * group_economy_factor, 2)
+
+        # Extract declared member budgets
+        member_budgets = [m.effective_budget for m in members]
+        min_budget_in_group = min(member_budgets)
+        avg_budget = sum(member_budgets) / num_members
+
+        # Harmonize: Blend destination benchmark with declared budgets to stay both realistic and affordable
+        # Ensure we do not drastically exceed the lowest member's threshold
+        if min_budget_in_group > 0:
+            blended_target = (dest_benchmark_per_person * 0.50) + (avg_budget * 0.50)
+            recommended_per_person = round(min(blended_target, min_budget_in_group * 1.25), 2)
+            recommended_per_person = max(recommended_per_person, min_budget_in_group * 0.90)
+        else:
+            recommended_per_person = dest_benchmark_per_person
+
+        recommended_per_person = round(recommended_per_person, 2)
         total_shared_budget = round(recommended_per_person * num_members, 2)
 
-        split_details = {m.name: recommended_per_person for m in members}
+        # 3. Expense Category Breakdown (Lodging, Food, Sightseeing, Transport)
+        expense_breakdown = [
+            ExpenseBreakdown(
+                category="🏨 Shared Lodging & Villas",
+                amount_total=round(total_shared_budget * 0.35, 2),
+                amount_per_person=round(recommended_per_person * 0.35, 2),
+                percentage=35,
+                note=f"2 persons per room or 1 private {num_members}-guest villa"
+            ),
+            ExpenseBreakdown(
+                category="🍽️ Group Dining & Meals",
+                amount_total=round(total_shared_budget * 0.25, 2),
+                amount_per_person=round(recommended_per_person * 0.25, 2),
+                percentage=25,
+                note="Breakfast included + family-style shared lunches & dinners"
+            ),
+            ExpenseBreakdown(
+                category="🎟️ Activities & Monument Passes",
+                amount_total=round(total_shared_budget * 0.25, 2),
+                amount_per_person=round(recommended_per_person * 0.25, 2),
+                percentage=25,
+                note="Group entry passes, guided heritage tours & excursions"
+            ),
+            ExpenseBreakdown(
+                category="🚐 Shared Local Transit & Cabs",
+                amount_total=round(total_shared_budget * 0.15, 2),
+                amount_per_person=round(recommended_per_person * 0.15, 2),
+                percentage=15,
+                note=f"Split dedicated minivan / tempo traveler between all {num_members} travelers"
+            )
+        ]
 
-        # 3. Compromises & Insights
+        # 4. Member Contribution Splits Matrix (Equal 1/N Split vs Stated Budget)
+        member_splits: List[MemberSplitSummary] = []
+        split_details: Dict[str, float] = {}
+        for m in members:
+            stated = m.effective_budget
+            balance = round(stated - recommended_per_person, 2)
+            if balance > 500:
+                status = f"Surplus (+₹{int(balance):,})"
+            elif balance < -500:
+                status = f"Shortfall (-₹{int(abs(balance)):,})"
+            else:
+                status = "Fully Balanced"
+
+            member_splits.append(MemberSplitSummary(
+                name=m.name,
+                stated_budget=stated,
+                fair_share=recommended_per_person,
+                balance=balance,
+                status=status
+            ))
+            split_details[m.name] = recommended_per_person
+
+        # 5. Compromises & Voting Insights
         voting_compromises = []
         for interest, count in interest_counts.most_common():
             percentage = int((count / num_members) * 100)
             if percentage >= 60:
                 voting_compromises.append(f"Strong Consensus: {interest.title()} approved by {percentage}% of the group.")
             elif percentage >= 40:
-                voting_compromises.append(f"Compromise Opportunity: {interest.title()} ({percentage}% support) allocated to dedicated half-day window.")
+                voting_compromises.append(f"Compromise Window: {interest.title()} ({percentage}% support) scheduled for a dedicated half-day excursion.")
             else:
-                voting_compromises.append(f"Elective Option: {interest.title()} ({percentage}% support) suggested as free-time elective.")
+                voting_compromises.append(f"Elective Option: {interest.title()} ({percentage}% support) set as optional free-time activity.")
 
-        # 4. Group Accommodation Recommendations
-        city_name = request.destination.split(",")[0].strip()
-        nights = max(1, request.duration_days - 1)
-        accommodations = self._recommend_accommodations(city_name, num_members, recommended_per_person, nights)
+        # 6. Group Accommodation Recommendations
+        nights = max(1, duration_days - 1)
+        accommodations = self._recommend_accommodations(clean_city, num_members, recommended_per_person, nights)
 
-        # 5. Transportation Optimization
-        transport_options = self._optimize_transportation(city_name, num_members, request.duration_days)
+        # 7. Transportation Optimization
+        transport_options = self._optimize_transportation(clean_city, num_members, duration_days)
 
-        prompt = (
-            f"You are the AI Group Travel Mediator for {num_members} travelers visiting {request.destination}.\n"
-            f"Members: {[m.name for m in members]}\n"
-            f"Key Interests: {ranked_interests[:4]}\n"
-            f"Budget Limit: Min individual budget is ₹{min_budget_in_group}, recommended per person is ₹{recommended_per_person}.\n"
-            f"Provide a 2-sentence summary reconciling individual desires into a cohesive, conflict-free itinerary."
+        consensus_summary = (
+            f"Calculated for {clean_city} ({duration_days} Days): Total group budget of ₹{int(total_shared_budget):,} "
+            f"split equally into ₹{int(recommended_per_person):,} per member across {num_members} travelers. "
+            f"Lodging and cab sharing delivers ~{int((1-group_economy_factor)*100)}% cost savings per person."
         )
 
-        try:
-            res = self.llm.invoke(prompt)
-            consensus_summary = res.content if hasattr(res, "content") else str(res)
-        except Exception:
-            consensus_summary = (
-                f"Harmonized itinerary integrating top group interests ({', '.join(ranked_interests[:3])}) "
-                f"while respecting the most budget-conscious member with a fair ₹{recommended_per_person}/person threshold."
-            )
-
         return GroupConsensusResult(
-            destination=request.destination,
+            destination=destination_name,
+            duration_days=duration_days,
+            group_size=num_members,
             aggregated_interests=ranked_interests,
             recommended_shared_budget=total_shared_budget,
             cost_per_person=recommended_per_person,
+            harmonized_budget_limit=total_shared_budget,
             consensus_summary=consensus_summary,
             voting_compromises=voting_compromises,
             split_details=split_details,
+            expense_breakdown=expense_breakdown,
+            member_splits=member_splits,
             recommended_accommodations=accommodations,
             transportation_options=transport_options
         )
@@ -96,10 +198,10 @@ class GroupConsensusAgent:
         self, city: str, group_size: int, per_person_budget: float, nights: int
     ) -> List[AccommodationOption]:
         options = []
-        nightly_budget_pool = max(2000.0, (per_person_budget * 0.35 * group_size) / max(1, nights))
+        nightly_budget_pool = max(2500.0, (per_person_budget * 0.35 * group_size) / max(1, nights))
 
         # Option 1: Multi-Bedroom Villa / Entire Private Home
-        villa_price = round(min(nightly_budget_pool * 1.05, 8500.0), 2)
+        villa_price = round(nightly_budget_pool * 1.05, 2)
         options.append(AccommodationOption(
             id="acc_villa_1",
             name=f"{city} Heritage Garden Villa & Private Courtyard",
@@ -114,7 +216,7 @@ class GroupConsensusAgent:
         ))
 
         # Option 2: Serviced Multi-Room Apartment
-        apt_price = round(min(nightly_budget_pool * 0.85, 6000.0), 2)
+        apt_price = round(nightly_budget_pool * 0.82, 2)
         options.append(AccommodationOption(
             id="acc_apt_2",
             name=f"{city} Urban View 3-BHK Serviced Apartment",
@@ -129,7 +231,7 @@ class GroupConsensusAgent:
         ))
 
         # Option 3: Boutique Hotel Interconnecting Rooms
-        hotel_price = round(min(nightly_budget_pool * 1.15, 9500.0), 2)
+        hotel_price = round(nightly_budget_pool * 1.15, 2)
         options.append(AccommodationOption(
             id="acc_hotel_3",
             name=f"{city} Royal Gateway Boutique Hotel",
@@ -151,7 +253,7 @@ class GroupConsensusAgent:
         options = []
 
         # Option 1: Dedicated Tempo Traveler / AC Minivan (Ideal for >= 4 people)
-        van_day_rate = 3200.0 if group_size <= 6 else 4500.0
+        van_day_rate = 3200.0 if group_size <= 6 else 4800.0
         van_total = van_day_rate * duration_days
         van_per_person = round(van_total / group_size, 2)
         options.append(TransportationOption(
@@ -163,9 +265,9 @@ class GroupConsensusAgent:
             carbon_footprint_kg=round(12.5 * duration_days, 1),
             recommendation_verdict="Recommended for Groups of 4+ (Maximum Convenience)",
             pros=[
-                "Entire group travels together with zero luggage hassle",
+                f"Entire group of {group_size} travels together with zero luggage hassle",
                 "Dedicated driver handles parking and navigation",
-                "Air-conditioned waiting between sightseeing stops"
+                f"Saves ~₹{int(van_day_rate * 0.4):,}/day compared to booking separate taxis"
             ],
             cons=[
                 "Subject to city traffic congestion during rush hours"
@@ -186,7 +288,7 @@ class GroupConsensusAgent:
             recommendation_verdict="Most Eco-Friendly & Most Affordable Choice",
             pros=[
                 "Completely avoids road gridlock and traffic signals",
-                "Extremely cost-effective (₹120/person/day unlimited passes)",
+                f"Extremely cost-effective (₹120/person/day unlimited passes in {city})",
                 "Reduces carbon emissions by over 80%"
             ],
             cons=[
@@ -195,7 +297,7 @@ class GroupConsensusAgent:
             ]
         ))
 
-        # Option 3: Split App-Based Cabs (Uber / Ola / Ride-Share)
+        # Option 3: Split App-Based Cabs
         num_cabs = max(1, (group_size + 3) // 4)
         cab_day_cost = 1400.0 * num_cabs
         cab_total = cab_day_cost * duration_days
@@ -219,4 +321,3 @@ class GroupConsensusAgent:
         ))
 
         return options
-
