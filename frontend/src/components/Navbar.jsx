@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Navbar({ onOpenGroupModal, onScrollToSection, onOpenSafetyModal, onOpenScannerModal, onToggleChat }) {
+export default function Navbar({ onOpenGroupModal, onScrollToSection, onOpenSafetyModal, onToggleChat }) {
   return (
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 lg:px-8 py-3 transition shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)]">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -76,16 +76,6 @@ export default function Navbar({ onOpenGroupModal, onScrollToSection, onOpenSafe
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
             <span>₹ INR</span>
           </div>
-
-          {/* Vision Scanner Shortcut */}
-          <button
-            onClick={onOpenScannerModal}
-            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-slate-900/15 active:scale-95"
-            title="Vision AI Scanner (Recognize monuments and listen to audio guides)"
-          >
-            <i className="fa-solid fa-camera-viewfinder text-amber-300"></i>
-            <span>Vision AI</span>
-          </button>
 
           {/* AI Travel Companion Shortcut (Upperside Launcher) */}
           <button

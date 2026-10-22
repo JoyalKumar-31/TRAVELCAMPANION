@@ -11,7 +11,6 @@ import Day1HotelsSection from './components/Day1HotelsSection';
 import HotelBookingModal from './components/HotelBookingModal';
 import GroupTravelModal from './components/GroupTravelModal';
 import AIChatCompanion from './components/AIChatCompanion';
-import VisionAIScannerModal from './components/VisionAIScannerModal';
 import { 
   DESTINATION_CONFIG, 
   HOTELS_DATABASE, 
@@ -39,7 +38,6 @@ export default function App() {
   // Modals state
   const [selectedHotelForBooking, setSelectedHotelForBooking] = useState(null);
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
-  const [isVisionModalOpen, setIsVisionModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   const destKey = getDestinationKey(destination);
@@ -243,7 +241,6 @@ export default function App() {
         onOpenGroupModal={() => setIsGroupModalOpen(true)}
         onScrollToSection={scrollToSection}
         onOpenSafetyModal={() => alert(`🛡️ Tourist Safety & SOS Emergency Hub for ${destination.split(',')[0]}:\n• Universal Emergency Helpline: 112\n• Local Police Control: 100 / 112\n• Medical Ambulance: 108 / 112\n• 24/7 Diplomatic & Tourist Police Active.`)}
-        onOpenScannerModal={() => setIsVisionModalOpen(true)}
         onToggleChat={() => setIsChatOpen(prev => !prev)}
       />
 
@@ -400,12 +397,6 @@ export default function App() {
         onExecuteAction={handleExecuteCompanionAction}
       />
 
-      {/* Landmark Vision AI Scanner Modal */}
-      <VisionAIScannerModal 
-        isOpen={isVisionModalOpen}
-        onClose={() => setIsVisionModalOpen(false)}
-        destination={destination}
-      />
 
       {/* Footer */}
       <footer className="mt-16 bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 font-medium">
