@@ -14,15 +14,18 @@ export default function HotelBookingModal({
   const [selectedSharingIdx, setSelectedSharingIdx] = useState(0);
   const [confirmedBooking, setConfirmedBooking] = useState(null);
 
-  const cleanCity = (destination || "").split("(")[0].split(",")[0].trim();
+  const cleanCity = hotel.city || (destination || "").split("(")[0].split(",")[0].trim();
   const selectedOption = hotel.sharing_options?.[selectedSharingIdx] || hotel.sharing_options?.[0];
   const guests = travelersCount || 2;
   const isDorm = selectedOption?.type?.toLowerCase().includes("dorm") || selectedOption?.type?.toLowerCase().includes("bed");
   const totalPrice = isDorm ? (selectedOption.price_per_person_inr * guests) : selectedOption.total_inr;
 
-  // MakeMyTrip verified direct booking URL
+  // MakeMyTrip verified direct booking URL & city listing guarantee URL
   const mmtBookingUrl = hotel.booking_links?.makemytrip_url || 
-    `https://www.makemytrip.com/hotels/hotel-listing/?searchText=${encodeURIComponent(hotel.name + " " + cleanCity)}&city=${encodeURIComponent(cleanCity)}`;
+    `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(cleanCity)}&searchText=${encodeURIComponent(hotel.name)}`;
+
+  const mmtCityUrl = hotel.booking_links?.makemytrip_city_url || 
+    `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(cleanCity)}`;
 
   const partnerPortalUrl = mmtBookingUrl;
 
@@ -159,7 +162,7 @@ export default function HotelBookingModal({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
                 {/* PRIMARY ACTION: DIRECT MAKEMYTRIP LINK */}
                 <a 
                   href={mmtBookingUrl} 
@@ -172,6 +175,18 @@ export default function HotelBookingModal({
                   </span>
                   <span>Book on MakeMyTrip ({cleanCity})</span>
                   <i className="fa-solid fa-arrow-up-right-from-square text-[11px] group-hover:translate-x-0.5 transition-transform"></i>
+                </a>
+
+                {/* SECONDARY ACTION: ALL CITY HOTELS ON MAKEMYTRIP */}
+                <a 
+                  href={mmtCityUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto py-3 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                  title={`Browse all available hotels in ${cleanCity} on MakeMyTrip`}
+                >
+                  <i className="fa-solid fa-city text-rose-500 text-[11px]"></i>
+                  <span>All {cleanCity} Hotels</span>
                 </a>
 
                 <button 
@@ -213,7 +228,7 @@ export default function HotelBookingModal({
                 </div>
               </div>
 
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
                 <a 
                   href={mmtBookingUrl} 
                   target="_blank" 
@@ -223,6 +238,15 @@ export default function HotelBookingModal({
                   <span className="w-4 h-4 rounded bg-white text-red-600 font-black text-[8px] flex items-center justify-center">MMT</span>
                   <span>Open on MakeMyTrip Portal</span>
                   <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </a>
+                <a 
+                  href={mmtCityUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <i className="fa-solid fa-city text-rose-500 text-[11px]"></i>
+                  <span>All {cleanCity} Hotels</span>
                 </a>
                 <button 
                   onClick={handleResetAndClose}

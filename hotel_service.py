@@ -7,537 +7,618 @@ import urllib.parse
 from typing import List, Dict, Any, Optional
 
 HOTELS_DATABASE: Dict[str, List[Dict[str, Any]]] = {
-    "goa": [
-        {
-            "id": "goa-lodge-1",
-            "name": "Baga Beach Backpacker Lodge & Hostel",
-            "type": "Beachfront Lodge",
-            "near_landmark": "Baga Beach (Day 1 Afternoon Hub)",
-            "distance": "250m from Baga Beach",
-            "rating": 4.8,
-            "reviews": 1240,
-            "image": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Free High-Speed WiFi", "AC", "Individual Lockers", "Swimming Pool", "Beach Access"],
-            "base_price_inr": 1600,
-            "sharing_options": [
-                {"type": "4-Bed Mixed Dorm Bed", "price_per_person_inr": 450, "total_inr": 1800, "badge": "Best Value Group Sharing", "note": "Bunk bed with personal reading lamp & locker"},
-                {"type": "2-Sharing (Twin Beds)", "price_per_person_inr": 800, "total_inr": 1600, "badge": "Couple / Friends", "note": "Two single beds with private bathroom"},
-                {"type": "Private Deluxe Room", "price_per_person_inr": 1600, "total_inr": 1600, "badge": "Private Stay", "note": "King bed with private sea-facing balcony"}
-            ]
-        },
-        {
-            "id": "goa-lodge-2",
-            "name": "Fontainhas Heritage Portuguese Lodge",
-            "type": "Heritage Lodge & Inn",
-            "near_landmark": "Old Latin Quarter (Day 1 Morning Hub)",
-            "distance": "150m from Fontainhas Walk",
-            "rating": 4.7,
-            "reviews": 890,
-            "image": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Free Breakfast", "Heritage Architecture", "AC", "Cafe & Bar", "Bicycle Rental"],
-            "base_price_inr": 3200,
-            "sharing_options": [
-                {"type": "3-Sharing Triple Room", "price_per_person_inr": 1150, "total_inr": 3450, "badge": "Friends Sharing", "note": "1 Double Bed + 1 Single Bed with colonial teakwood decor"},
-                {"type": "2-Sharing Double Room", "price_per_person_inr": 1600, "total_inr": 3200, "badge": "Couple Favorite", "note": "Traditional Portuguese tiled suite with breakfast included"}
-            ]
-        },
-        {
-            "id": "goa-lodge-3",
-            "name": "Calangute Palms Shared Beach Villa",
-            "type": "Group Villa / Serviced Lodge",
-            "near_landmark": "Calangute Strip",
-            "distance": "500m from Calangute Beach",
-            "rating": 4.9,
-            "reviews": 650,
-            "image": "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Private Pool", "Kitchenette", "Living Room", "Free Parking", "BBQ Patio"],
-            "base_price_inr": 5400,
-            "sharing_options": [
-                {"type": "Entire 4-Person Sharing Villa", "price_per_person_inr": 1350, "total_inr": 5400, "badge": "Group Villa", "note": "2 Bedrooms + Private Plunge Pool for up to 4 members"},
-                {"type": "Entire 6-Person Sharing Villa", "price_per_person_inr": 1050, "total_inr": 6300, "badge": "Large Group Sharing", "note": "3 Bedrooms + Full Living Room for up to 6 members"}
-            ]
-        }
-    ],
-
-    "hyderabad": [
-        {
-            "id": "hyd-lodge-1",
-            "name": "Charminar Heritage Tourist Lodge",
-            "type": "Budget Tourist Lodge",
-            "near_landmark": "Charminar & Laad Bazaar (Day 1 Stay)",
-            "distance": "350m from Charminar",
-            "rating": 4.6,
-            "reviews": 1100,
-            "image": "https://images.unsplash.com/photo-1572455044327-7348c1be7267?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Free WiFi", "AC & Non-AC", "24/7 Room Service", "Hot Water", "Tour Desk"],
-            "base_price_inr": 1500,
-            "sharing_options": [
-                {"type": "4-Bed Family / Group Sharing", "price_per_person_inr": 400, "total_inr": 1600, "badge": "Super Budget Sharing", "note": "4 Single Cots with private bath & ceiling fans"},
-                {"type": "3-Sharing Triple Room", "price_per_person_inr": 550, "total_inr": 1650, "badge": "Group Sharing", "note": "1 King Bed + 1 Single Bed with AC"},
-                {"type": "2-Sharing Executive Double", "price_per_person_inr": 750, "total_inr": 1500, "badge": "Couple / Duo", "note": "Spacious double bedroom overlooking Old City bazaar"}
-            ]
-        },
-        {
-            "id": "hyd-lodge-2",
-            "name": "Banjara Hills Transit Executive Lodge & Suites",
-            "type": "Modern Business Lodge",
-            "near_landmark": "Banjara Hills Road No. 1",
-            "distance": "1.2 km from City Center Metro",
-            "rating": 4.7,
-            "reviews": 840,
-            "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Free Buffet Breakfast", "Work Desk", "Gym", "High-Speed WiFi", "Cab Pickup"],
-            "base_price_inr": 2400,
-            "sharing_options": [
-                {"type": "2-Sharing Twin Executive", "price_per_person_inr": 1200, "total_inr": 2400, "badge": "Comfort Sharing", "note": "Twin orthopedic beds + breakfast included"},
-                {"type": "3-Sharing Triple Studio", "price_per_person_inr": 900, "total_inr": 2700, "badge": "Family / Friends", "note": "Executive suite with pull-out sofa bed"}
-            ]
-        },
-        {
-            "id": "hyd-lodge-3",
-            "name": "Golconda View Royal Courtyard Lodge",
-            "type": "Heritage Stay & Lodge",
-            "near_landmark": "Golconda Fort Citadel",
-            "distance": "600m from Fort Entry Gate",
-            "rating": 4.8,
-            "reviews": 420,
-            "image": "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Fort View Terrace", "Authentic Hyderabadi Dining", "AC", "Traditional Decor"],
-            "base_price_inr": 3100,
-            "sharing_options": [
-                {"type": "2-Sharing Heritage Room", "price_per_person_inr": 1550, "total_inr": 3100, "badge": "Scenic View", "note": "Panoramic Fort Rampart view from private balcony"},
-                {"type": "4-Sharing Royal Suite", "price_per_person_inr": 950, "total_inr": 3800, "badge": "Royal Group Sharing", "note": "Two interconnected rooms for up to 4 members"}
-            ]
-        }
-    ],
-
-    "kerala": [
-        {
-            "id": "ker-lodge-1",
-            "name": "Fort Kochi Backpacker & Heritage Lodge",
-            "type": "Colonial Lodge & Hostel",
-            "near_landmark": "Chinese Fishing Nets (Day 1 Hub)",
-            "distance": "200m from Fort Kochi Beach",
-            "rating": 4.8,
-            "reviews": 980,
-            "image": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Free WiFi", "Garden Cafe", "Hammocks", "Ayurvedic Spa Desk", "AC"],
-            "base_price_inr": 1800,
-            "sharing_options": [
-                {"type": "4-Bed Air-Conditioned Dorm Bed", "price_per_person_inr": 480, "total_inr": 1920, "badge": "Backpacker Value", "note": "Wooden bunk bed with privacy curtain & locker"},
-                {"type": "2-Sharing Dutch Colonial Twin", "price_per_person_inr": 900, "total_inr": 1800, "badge": "Twin Sharing", "note": "Antique wooden beds with garden view"},
-                {"type": "Private Heritage Room", "price_per_person_inr": 1800, "total_inr": 1800, "badge": "Private Deluxe", "note": "High ceiling Portuguese bedroom with private verandah"}
-            ]
-        },
-        {
-            "id": "ker-lodge-2",
-            "name": "Punnamada Lake Shared Kettuvallam Houseboat",
-            "type": "Houseboat Lodge",
-            "near_landmark": "Alleppey Backwaters Jetty",
-            "distance": "Boarding at Finishing Point Jetty",
-            "rating": 4.9,
-            "reviews": 1450,
-            "image": "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["All Meals (Karimeen Fish Thali)", "Private Chef", "Upper Deck View", "AC Bedrooms"],
-            "base_price_inr": 6000,
-            "sharing_options": [
-                {"type": "4-Person Shared Houseboat Suite", "price_per_person_inr": 1500, "total_inr": 6000, "badge": "Iconic Group Stay", "note": "2 AC Bedrooms + Common Upper Deck + Full 3 Meals"},
-                {"type": "2-Sharing Private Bedroom", "price_per_person_inr": 3000, "total_inr": 6000, "badge": "Romantic Cruise", "note": "Private bedroom in shared luxury 3-bedroom houseboat"}
-            ]
-        }
-    ],
-
-    "kashmir": [
-        {
-            "id": "kas-lodge-1",
-            "name": "Dal Lake Royal Heritage Shikara Houseboat Lodge",
-            "type": "Heritage Houseboat Lodge",
-            "near_landmark": "Dal Lake Ghat No. 2 (Day 1 Hub)",
-            "distance": "Direct Waterfront on Dal Lake",
-            "rating": 4.9,
-            "reviews": 1600,
-            "image": "https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Free Shikara Transfers", "Heated Bedrooms (Bukhari)", "Kahwa Tea on Arrival", "Walnut Wood Decor"],
-            "base_price_inr": 3800,
-            "sharing_options": [
-                {"type": "4-Sharing Family Cedar Suite", "price_per_person_inr": 950, "total_inr": 3800, "badge": "Popular Sharing", "note": "Two interconnected carved walnut wood bedrooms with lake view"},
-                {"type": "2-Sharing Deluxe Double", "price_per_person_inr": 1900, "total_inr": 3800, "badge": "Couple Favorite", "note": "Front balcony room with unobstructed Zabarwan Mountain views"},
-                {"type": "3-Sharing Triple Room", "price_per_person_inr": 1350, "total_inr": 4050, "badge": "Triple Sharing", "note": "1 King Bed + 1 Single Bed with electric bed warmers"}
-            ]
-        },
-        {
-            "id": "kas-lodge-2",
-            "name": "Boulevard Road Travelers Pine Lodge",
-            "type": "Alpine Budget Lodge",
-            "near_landmark": "Boulevard Road, Srinagar",
-            "distance": "100m from Dal Lake Promenade",
-            "rating": 4.7,
-            "reviews": 720,
-            "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Electric Blankets", "In-House Kashmiri Wazwan Cafe", "24h Hot Geyser", "WiFi"],
-            "base_price_inr": 2000,
-            "sharing_options": [
-                {"type": "4-Bed Group Dormitory", "price_per_person_inr": 500, "total_inr": 2000, "badge": "Super Budget", "note": "Heated group dorm with cozy quilts & hot showers"},
-                {"type": "2-Sharing Standard Double", "price_per_person_inr": 1000, "total_inr": 2000, "badge": "Duo Sharing", "note": "Double bedroom with mountain view window"}
-            ]
-        }
-    ],
-
-    "manali": [
-        {
-            "id": "man-lodge-1",
-            "name": "Old Manali Bohemian Pine Lodge & Hostel",
-            "type": "Mountain Lodge & Hostel",
-            "near_landmark": "Hadimba Temple & Old Manali Village",
-            "distance": "300m from Hadimba Temple",
-            "rating": 4.8,
-            "reviews": 1320,
-            "image": "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Bonfire Nights", "Acoustic Cafe", "Apple Orchard View", "Heated Water", "High-Speed WiFi"],
-            "base_price_inr": 1400,
-            "sharing_options": [
-                {"type": "6-Bed Mixed Bunk Dorm Bed", "price_per_person_inr": 380, "total_inr": 2280, "badge": "Cheapest Sharing", "note": "Solid cedarwood bunk with individual charging & lockers"},
-                {"type": "4-Bed Pine Wood Dorm Bed", "price_per_person_inr": 480, "total_inr": 1920, "badge": "Cozy Sharing", "note": "4-bed dorm with private attached heated bathroom"},
-                {"type": "2-Sharing Wooden Attic Room", "price_per_person_inr": 700, "total_inr": 1400, "badge": "Twin Sharing", "note": "Cozy wooden cottage room with snow mountain balcony"}
-            ]
-        },
-        {
-            "id": "man-lodge-2",
-            "name": "Solang Valley Snow Crest Chalet & Lodge",
-            "type": "Alpine Chalet Lodge",
-            "near_landmark": "Solang Valley Snow Point",
-            "distance": "500m from Ropeway Base",
-            "rating": 4.9,
-            "reviews": 880,
-            "image": "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Snow Peak View", "Fireplace Lounge", "Trout Barbecue", "Ski Rental Desk"],
-            "base_price_inr": 3600,
-            "sharing_options": [
-                {"type": "4-Sharing Duplex Chalet", "price_per_person_inr": 900, "total_inr": 3600, "badge": "Group Duplex", "note": "2-level wooden chalet for up to 4 persons with fireplace"},
-                {"type": "2-Sharing Glacier View Deluxe", "price_per_person_inr": 1800, "total_inr": 3600, "badge": "Couple Balcony", "note": "Balcony facing glacier and pine forest"}
-            ]
-        }
-    ],
-
-    "jaipur": [
-        {
-            "id": "jai-lodge-1",
-            "name": "Pink City Royal Haveli Lodge",
-            "type": "Heritage Haveli Lodge",
-            "near_landmark": "Hawa Mahal (Day 1 Hub)",
-            "distance": "400m from Hawa Mahal & City Palace",
-            "rating": 4.8,
-            "reviews": 1150,
-            "image": "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Rooftop Restaurant", "Folk Music Evenings", "AC", "Rajasthani Courtyard"],
-            "base_price_inr": 1800,
-            "sharing_options": [
-                {"type": "4-Bed Haveli Dorm Bed", "price_per_person_inr": 450, "total_inr": 1800, "badge": "Budget Heritage Sharing", "note": "Air-conditioned heritage room with brass cots"},
-                {"type": "3-Sharing Royal Triple", "price_per_person_inr": 650, "total_inr": 1950, "badge": "Friends Sharing", "note": "1 King Bed + 1 Diwan with Jharokha window"},
-                {"type": "2-Sharing Maharaja Deluxe", "price_per_person_inr": 900, "total_inr": 1800, "badge": "Couple Stay", "note": "Carved arches, colorful frescoes, and modern attached bath"}
-            ]
-        }
-    ],
-
-    "varanasi": [
-        {
-            "id": "var-lodge-1",
-            "name": "Ganga View Kashi Heritage Lodge & Dharamshala",
-            "type": "Ghatside Pilgrimage Lodge",
-            "near_landmark": "Dashashwamedh Ghat (Day 1 Evening Hub)",
-            "distance": "150m from Ganga Aarti Steps",
-            "rating": 4.7,
-            "reviews": 1820,
-            "image": "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Direct River Ganga View", "Rooftop Yoga", "Pure Veg Dining", "Morning Boat Desk", "AC"],
-            "base_price_inr": 1200,
-            "sharing_options": [
-                {"type": "4-Bed Pilgrimage Dorm Sharing", "price_per_person_inr": 320, "total_inr": 1280, "badge": "Pilgrim Budget Sharing", "note": "Clean shared room with locker & attached bath"},
-                {"type": "3-Sharing Triple Room", "price_per_person_inr": 450, "total_inr": 1350, "badge": "Family Sharing", "note": "3 Beds with AC & clean linen"},
-                {"type": "2-Sharing River View Double", "price_per_person_inr": 600, "total_inr": 1200, "badge": "Ganga View", "note": "Direct window view of sacred Ganga river & sunrise"}
-            ]
-        }
-    ],
-
     "switzerland": [
         {
-            "id": "swi-lodge-1",
-            "name": "Zurich Old Town Alpine Riverside Lodge",
-            "type": "Historic Swiss Lodge & Inn",
-            "near_landmark": "Niederdorf Old Town & Lake Zurich (Day 1)",
+            "id": "swi-d1-1",
+            "day": 1,
+            "day_hub": "Zurich Old Town Hub",
+            "name": "Hotel Felix Zurich",
+            "type": "Boutique Old Town Lodge",
+            "near_landmark": "Niederdorf Old Town & Zurich HB (Day 1 Hub)",
             "distance": "200m from Zurich Central Station & Limmat",
             "rating": 4.8,
-            "reviews": 1420,
+            "reviews": 1540,
             "image": "https://images.unsplash.com/photo-1515488764276-beab7607c1e6?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Swiss Fondue Breakfast", "Free City Transit Pass", "High-Speed WiFi", "Luggage Storage"],
+            "amenities": [
+                "Swiss Fondue Breakfast",
+                "Free City Transit Pass",
+                "High-Speed WiFi",
+                "Luggage Storage"
+            ],
             "base_price_inr": 7800,
             "sharing_options": [
-                {"type": "4-Bed Swiss Bunk Dorm Bed", "price_per_person_inr": 2100, "total_inr": 8400, "badge": "Swiss Budget Sharing", "note": "Swiss pine wood bunk with privacy pod & power sockets"},
-                {"type": "2-Sharing Alpine Twin Room", "price_per_person_inr": 3900, "total_inr": 7800, "badge": "Duo Sharing", "note": "Twin beds with private en-suite shower & city view"},
-                {"type": "3-Sharing Family Triple Room", "price_per_person_inr": 2800, "total_inr": 8400, "badge": "Triple Sharing", "note": "1 Queen Bed + 1 Single Bed in historic 17th-century lodge"}
+                {
+                    "type": "4-Bed Swiss Bunk Dorm Bed",
+                    "price_per_person_inr": 2100,
+                    "total_inr": 8400,
+                    "badge": "Swiss Budget Sharing",
+                    "note": "Swiss pine wood bunk with privacy pod & power sockets"
+                },
+                {
+                    "type": "2-Sharing Alpine Twin Room",
+                    "price_per_person_inr": 3900,
+                    "total_inr": 7800,
+                    "badge": "Duo Sharing",
+                    "note": "Twin beds with private en-suite shower & city view"
+                },
+                {
+                    "type": "3-Sharing Family Triple Room",
+                    "price_per_person_inr": 2800,
+                    "total_inr": 8400,
+                    "badge": "Triple Sharing",
+                    "note": "1 Queen Bed + 1 Single Bed in historic Altstadt lodge"
+                }
             ]
         },
         {
-            "id": "swi-lodge-2",
-            "name": "Interlaken Valley Backpacker Chalet Lodge",
-            "type": "Alpine Mountain Chalet",
-            "near_landmark": "Interlaken Ost Railway & Harder Kulm",
-            "distance": "350m from Interlaken Ost",
+            "id": "swi-d1-2",
+            "day": 1,
+            "day_hub": "Zurich Old Town Hub",
+            "name": "Central Plaza Hotel Zurich",
+            "type": "Limmat Riverfront Inn",
+            "near_landmark": "Central Station & Limmat Quai (Day 1 Afternoon)",
+            "distance": "150m from Central Tram & River",
+            "rating": 4.7,
+            "reviews": 1120,
+            "image": "https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Riverfront Panorama",
+                "Free WiFi",
+                "Swiss Breakfast",
+                "Piano Bar"
+            ],
+            "base_price_inr": 8200,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Riverview Suite",
+                    "price_per_person_inr": 4100,
+                    "total_inr": 8200,
+                    "badge": "Couple Favorite",
+                    "note": "Scenic balcony overlooking water fountains and Grossm\u00fcnster"
+                }
+            ]
+        },
+        {
+            "id": "swi-d2-1",
+            "day": 2,
+            "day_hub": "Lucerne Chapel Bridge Hub",
+            "name": "Hotel Monopol Luzern",
+            "type": "Historic Lakefront Lodge",
+            "near_landmark": "Kapellbr\u00fccke / Chapel Bridge (Day 2 Morning Hub)",
+            "distance": "100m from Chapel Bridge & Station",
+            "rating": 4.9,
+            "reviews": 1680,
+            "image": "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Lake Lucerne View",
+                "Free Swiss Travel Advice",
+                "High-Speed WiFi",
+                "Breakfast Buffet"
+            ],
+            "base_price_inr": 8400,
+            "sharing_options": [
+                {
+                    "type": "4-Bed Lakefront Dorm Bed",
+                    "price_per_person_inr": 2250,
+                    "total_inr": 9000,
+                    "badge": "Group Sharing",
+                    "note": "Bunk with lake panorama & individual reading lockers"
+                },
+                {
+                    "type": "2-Sharing Classic Alpine Room",
+                    "price_per_person_inr": 4200,
+                    "total_inr": 8400,
+                    "badge": "Couple Choice",
+                    "note": "Wooden-paneled suite right next to the historic flower bridge"
+                }
+            ]
+        },
+        {
+            "id": "swi-d2-2",
+            "day": 2,
+            "day_hub": "Lucerne Chapel Bridge Hub",
+            "name": "Ameron Luzern Hotel Flora",
+            "type": "Lakefront Boutique Hotel",
+            "near_landmark": "Lake Lucerne & Lion Monument (Day 2 Afternoon)",
+            "distance": "180m from Lake Lucerne Promenade",
+            "rating": 4.8,
+            "reviews": 1280,
+            "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Italian Restaurant",
+                "Lake Promenade Access",
+                "High-Speed WiFi",
+                "Breakfast"
+            ],
+            "base_price_inr": 8100,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Double Flora Room",
+                    "price_per_person_inr": 4050,
+                    "total_inr": 8100,
+                    "badge": "Couple Choice",
+                    "note": "Comfortable room close to steamer cruise piers"
+                }
+            ]
+        },
+        {
+            "id": "swi-d3-1",
+            "day": 3,
+            "day_hub": "Interlaken Valley Hub",
+            "name": "Hotel Interlaken",
+            "type": "Historic Alpine Inn",
+            "near_landmark": "Interlaken Ost Railway & Harder Kulm (Day 3 Hub)",
+            "distance": "250m from Interlaken Ost & Funicular",
             "rating": 4.9,
             "reviews": 1850,
             "image": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Jungfrau Glacier View", "Guest Kitchen", "Outdoor Hot Tub", "Bicycle Rental"],
+            "amenities": [
+                "Jungfrau Glacier View",
+                "Swiss Taverne Restaurant",
+                "Garden Patio",
+                "WiFi"
+            ],
             "base_price_inr": 6500,
             "sharing_options": [
-                {"type": "6-Bed Chalet Dorm Bed", "price_per_person_inr": 1650, "total_inr": 9900, "badge": "Backpacker Choice", "note": "Heated wooden chalet dorm with breathtaking alpine panorama"},
-                {"type": "2-Sharing Private Chalet Room", "price_per_person_inr": 3250, "total_inr": 6500, "badge": "Couple Chalet", "note": "Private room with balcony facing snow-capped Eiger peak"}
-            ]
-        }
-    ],
-
-    "paris": [
-        {
-            "id": "par-lodge-1",
-            "name": "Montmartre Bohemian Artists Lodge & Hostel",
-            "type": "Boutique Parisian Lodge",
-            "near_landmark": "Sacré-Cœur & Boulevard de Clichy",
-            "distance": "300m from Anvers Metro Station",
-            "rating": 4.7,
-            "reviews": 1100,
-            "image": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Croissant & Coffee Breakfast", "Rooftop Paris View", "Free WiFi", "Elevator"],
-            "base_price_inr": 8200,
-            "sharing_options": [
-                {"type": "4-Bed Shared Parisian Studio", "price_per_person_inr": 2200, "total_inr": 8800, "badge": "Group Sharing", "note": "Bunk beds in a classic Haussmannian room with high ceilings"},
-                {"type": "2-Sharing Double Room", "price_per_person_inr": 4100, "total_inr": 8200, "badge": "Romantic Duo", "note": "Double bed with view of Eiffel Tower in the distance"}
-            ]
-        }
-    ],
-
-    "dubai": [
-        {
-            "id": "dub-lodge-1",
-            "name": "Deira Heritage Creek Tourist Lodge",
-            "type": "Heritage Waterfront Lodge",
-            "near_landmark": "Dubai Creek & Gold Souk (Day 1 Hub)",
-            "distance": "150m from Abra Water Taxi Station",
-            "rating": 4.7,
-            "reviews": 1390,
-            "image": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Arabic Coffee Welcome", "Creek Ferry Access", "AC", "Free WiFi", "Buffet Breakfast"],
-            "base_price_inr": 4200,
-            "sharing_options": [
-                {"type": "4-Sharing Family Creek Suite", "price_per_person_inr": 1150, "total_inr": 4600, "badge": "Family Sharing", "note": "Two interconnected bedrooms overlooking sailing dhow boats"},
-                {"type": "3-Sharing Triple Room", "price_per_person_inr": 1450, "total_inr": 4350, "badge": "Triple Sharing", "note": "3 single beds with Arabic courtyard decor"},
-                {"type": "2-Sharing Executive Double", "price_per_person_inr": 2100, "total_inr": 4200, "badge": "Couple Stay", "note": "King bed with private bath and creek view balcony"}
-            ]
-        }
-    ],
-
-    "vizag": [
-        {
-            "id": "viz-lodge-1",
-            "name": "RK Beachfront Backpacker & Heritage Lodge",
-            "type": "Coastal Tourist Lodge",
-            "near_landmark": "RK Beach & Submarine Museum (Day 1 Hub)",
-            "distance": "120m from Submarine Museum",
-            "rating": 4.8,
-            "reviews": 920,
-            "image": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Direct Ocean View", "AC", "Free WiFi", "Fresh Seafood Thali", "Beach Rental"],
-            "base_price_inr": 1400,
-            "sharing_options": [
-                {"type": "4-Bed Beach Bunk Dorm Bed", "price_per_person_inr": 350, "total_inr": 1400, "badge": "Budget Beach Sharing", "note": "Individual sea-breeze bunk with privacy curtain & locker"},
-                {"type": "2-Sharing Sea View Double", "price_per_person_inr": 700, "total_inr": 1400, "badge": "Couple Sea View", "note": "Double bed with balcony facing Bay of Bengal"},
-                {"type": "3-Sharing Family Triple", "price_per_person_inr": 550, "total_inr": 1650, "badge": "Group Sharing", "note": "1 King Bed + 1 Single Cot with attached modern shower"}
+                {
+                    "type": "4-Bed Alpine Room Sharing",
+                    "price_per_person_inr": 1800,
+                    "total_inr": 7200,
+                    "badge": "Group Sharing",
+                    "note": "Heated wooden room with breathtaking alpine panorama"
+                },
+                {
+                    "type": "2-Sharing Private Room",
+                    "price_per_person_inr": 3250,
+                    "total_inr": 6500,
+                    "badge": "Couple Choice",
+                    "note": "Private balcony facing Eiger and Jungfrau"
+                }
             ]
         },
         {
-            "id": "viz-lodge-2",
-            "name": "Araku Valley Pine Mist Eco Lodge",
-            "type": "Hill Station Eco Lodge",
-            "near_landmark": "Araku Tribal Museum & Coffee Gardens",
-            "distance": "350m from Tribal Museum",
-            "rating": 4.9,
-            "reviews": 740,
-            "image": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Organic Coffee Terrace", "Bonfire", "Mountain Stream Trek", "Hot Water"],
-            "base_price_inr": 2200,
-            "sharing_options": [
-                {"type": "4-Sharing Wooden Family Cottage", "price_per_person_inr": 550, "total_inr": 2200, "badge": "Group Cottage", "note": "Spacious pine wood cottage for up to 4 members"},
-                {"type": "2-Sharing Valley View Room", "price_per_person_inr": 1100, "total_inr": 2200, "badge": "Scenic Balcony", "note": "Private balcony overlooking Araku coffee plantations"}
-            ]
-        }
-    ],
-
-    "delhi_agra": [
-        {
-            "id": "del-lodge-1",
-            "name": "Taj Sunrise View Heritage Lodge & Homestay",
-            "type": "Heritage View Lodge",
-            "near_landmark": "Taj Mahal East Gate (Day 1 Hub)",
-            "distance": "250m from Taj Mahal Entry Gate",
-            "rating": 4.8,
-            "reviews": 1650,
-            "image": "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Rooftop Taj Mahal Panorama", "Free WiFi", "AC", "Traditional Mughlai Breakfast", "Luggage Storage"],
-            "base_price_inr": 1600,
-            "sharing_options": [
-                {"type": "4-Bed Taj View Dorm Bed", "price_per_person_inr": 400, "total_inr": 1600, "badge": "Best Value Sharing", "note": "Air-conditioned dorm bed with personal reading lamp & locker"},
-                {"type": "2-Sharing Heritage Deluxe", "price_per_person_inr": 800, "total_inr": 1600, "badge": "Couple Choice", "note": "Teakwood double bed with rooftop Taj Mahal sunrise access"},
-                {"type": "3-Sharing Mughal Triple Suite", "price_per_person_inr": 600, "total_inr": 1800, "badge": "Family / Friends", "note": "1 Double Bed + 1 Single Diwan with carved arches"}
-            ]
-        }
-    ],
-
-    "ladakh": [
-        {
-            "id": "lad-lodge-1",
-            "name": "Leh Old Town Himalayan Stargazing Lodge",
-            "type": "Traditional Ladakhi Lodge",
-            "near_landmark": "Leh Palace & Main Bazaar (Day 1 Hub)",
-            "distance": "250m from Old Bazaar",
-            "rating": 4.9,
-            "reviews": 1120,
-            "image": "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Bukhari Room Heating", "Oxygen Cylinder Assistance", "Tibetan Butter Tea", "Stargazing Terrace"],
-            "base_price_inr": 2400,
-            "sharing_options": [
-                {"type": "4-Bed Heated Wood Dorm Bed", "price_per_person_inr": 600, "total_inr": 2400, "badge": "Himalayan Backpacker", "note": "Warm pine wood bunk with heavy wool blankets & hot showers"},
-                {"type": "2-Sharing Snow Mountain Room", "price_per_person_inr": 1200, "total_inr": 2400, "badge": "Couple Deluxe", "note": "Double bedroom facing snow-capped Stok Kangri range"}
-            ]
-        }
-    ],
-
-    "ooty": [
-        {
-            "id": "oot-lodge-1",
-            "name": "Nilgiri Blue Mountain Heritage Tea Lodge",
-            "type": "Colonial Tea Estate Lodge",
-            "near_landmark": "Ooty Lake & Botanical Garden (Day 1 Hub)",
-            "distance": "300m from Lake Boathouse",
-            "rating": 4.8,
-            "reviews": 890,
-            "image": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Fireplace Lounge", "Fresh Nilgiri Tea", "Eucalyptus Garden", "Heated Water", "Free Parking"],
-            "base_price_inr": 1800,
-            "sharing_options": [
-                {"type": "4-Bed Pine Wood Sharing Suite", "price_per_person_inr": 450, "total_inr": 1800, "badge": "Budget Group Sharing", "note": "4 single wooden cots with cozy hill quilts"},
-                {"type": "2-Sharing Colonial Fireplace Room", "price_per_person_inr": 900, "total_inr": 1800, "badge": "Couple Warmth", "note": "Colonial bedroom with working fireplace & garden patio"}
-            ]
-        }
-    ],
-
-    "tokyo": [
-        {
-            "id": "tok-lodge-1",
-            "name": "Asakusa Traditional Ryokan & Capsule Lodge",
-            "type": "Traditional Japanese Ryokan & Capsule Lodge",
-            "near_landmark": "Sensō-ji Temple (Day 1 Hub)",
-            "distance": "200m from Kaminarimon Gate",
+            "id": "swi-d3-2",
+            "day": 3,
+            "day_hub": "Interlaken Valley Hub",
+            "name": "Youth Hostel Interlaken",
+            "type": "Modern Backpacker Lodge",
+            "near_landmark": "Directly Beside Interlaken Ost Train Station",
+            "distance": "50m from Interlaken Ost Station",
             "rating": 4.8,
             "reviews": 2100,
-            "image": "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Traditional Onsen Bath", "Free High-Speed WiFi", "Yukata Robes", "Matcha Welcome Drink"],
-            "base_price_inr": 5500,
+            "image": "https://images.unsplash.com/photo-1502784444187-359ac186c5bb?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Buffet Breakfast",
+                "Guest Lounge",
+                "Bicycle Rental",
+                "Free WiFi"
+            ],
+            "base_price_inr": 5400,
             "sharing_options": [
-                {"type": "Individual Futuristic Capsule Pod", "price_per_person_inr": 1900, "total_inr": 1900, "badge": "Futuristic Pod", "note": "Soundproof cyber pod with ambient sleep lighting & USB console"},
-                {"type": "2-Sharing Traditional Tatami Room", "price_per_person_inr": 2750, "total_inr": 5500, "badge": "Authentic Ryokan", "note": "Woven rush tatami mats with authentic Japanese futon bedding"}
+                {
+                    "type": "4-Bed Mixed Dorm",
+                    "price_per_person_inr": 1350,
+                    "total_inr": 5400,
+                    "badge": "Backpacker Best",
+                    "note": "Top rated hostel in Switzerland with buffet breakfast included"
+                }
             ]
-        }
-    ],
-
-    "rome": [
+        },
         {
-            "id": "rom-lodge-1",
-            "name": "Colosseo Imperial Historic Lodge",
-            "type": "Historic Roman Townhouse Lodge",
-            "near_landmark": "Colosseum & Roman Forum (Day 1 Hub)",
-            "distance": "250m from Colosseo Metro Station",
-            "rating": 4.8,
+            "id": "swi-d4-1",
+            "day": 4,
+            "day_hub": "Grindelwald First Alpine Hub",
+            "name": "Sunstar Hotel Grindelwald",
+            "type": "Traditional Glacier Chalet Resort",
+            "near_landmark": "Grindelwald First Gondola & Cliff Walk (Day 4 Hub)",
+            "distance": "150m from First Gondola Station",
+            "rating": 4.9,
             "reviews": 1640,
-            "image": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Italian Espresso & Pastry Breakfast", "Terrace with Ancient Ruins View", "AC", "WiFi"],
-            "base_price_inr": 7200,
+            "image": "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Eiger North Face View",
+                "Indoor Pool & Wellness",
+                "Heated Balcony",
+                "Ski Storage"
+            ],
+            "base_price_inr": 8600,
             "sharing_options": [
-                {"type": "4-Bed Imperial Shared Suite", "price_per_person_inr": 1800, "total_inr": 7200, "badge": "Group Sharing", "note": "Renaissance vaulted ceiling suite for up to 4 members"},
-                {"type": "2-Sharing Roman Classic Double", "price_per_person_inr": 3600, "total_inr": 7200, "badge": "Romantic Duo", "note": "Double bedroom overlooking historic cobblestone via"}
+                {
+                    "type": "4-Bed Alpine Suite",
+                    "price_per_person_inr": 2300,
+                    "total_inr": 9200,
+                    "badge": "Alpine Sharing",
+                    "note": "Pine pod with mountain valley view and warm duvet"
+                },
+                {
+                    "type": "2-Sharing Glacier View Double",
+                    "price_per_person_inr": 4300,
+                    "total_inr": 8600,
+                    "badge": "Couple Choice",
+                    "note": "Balcony facing the colossal Wetterhorn and Eiger peaks"
+                }
             ]
-        }
-    ],
-
-    "london": [
+        },
         {
-            "id": "lon-lodge-1",
-            "name": "South Bank & Westminster Travelers Lodge",
-            "type": "Riverside Historic Lodge & Inn",
-            "near_landmark": "Big Ben & London Eye (Day 1 Hub)",
-            "distance": "300m from Waterloo & Westminster Bridge",
-            "rating": 4.7,
-            "reviews": 1890,
-            "image": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Full English Breakfast Option", "Thames Riverside Walk Access", "Free WiFi", "Secure Pods"],
+            "id": "swi-d5-1",
+            "day": 5,
+            "day_hub": "Lauterbrunnen & Jungfrau Hub",
+            "name": "Hotel Silberhorn Lauterbrunnen",
+            "type": "Valley Waterfall Alpine Lodge",
+            "near_landmark": "Staubbach Falls & Wengernalp Railway (Day 5 Hub)",
+            "distance": "120m from Lauterbrunnen Station & Falls",
+            "rating": 4.9,
+            "reviews": 1720,
+            "image": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Waterfall Soundscape",
+                "Alpine Breakfast",
+                "Free WiFi",
+                "Pizza & Swiss Resto"
+            ],
             "base_price_inr": 8500,
             "sharing_options": [
-                {"type": "4-Bed Shared London Bunk Pod", "price_per_person_inr": 2125, "total_inr": 8500, "badge": "Central Sharing", "note": "Curtained bunk pod with individual reading light & power hub"},
-                {"type": "2-Sharing Westminster Twin", "price_per_person_inr": 4250, "total_inr": 8500, "badge": "Twin Classic", "note": "Twin beds with en-suite modern shower and city view"}
+                {
+                    "type": "4-Bed Waterfall Room",
+                    "price_per_person_inr": 2200,
+                    "total_inr": 8800,
+                    "badge": "Valley Sharing",
+                    "note": "Panoramic window facing 300m cascading falls"
+                },
+                {
+                    "type": "2-Sharing Double Room",
+                    "price_per_person_inr": 4250,
+                    "total_inr": 8500,
+                    "badge": "Couple Favorite",
+                    "note": "Intimate wooden lodge overlooking alpine cliffs"
+                }
             ]
         }
     ],
-
-    "singapore": [
+    "goa": [
         {
-            "id": "sin-lodge-1",
-            "name": "Marina Bay & Chinatown Smart Capsule Lodge",
-            "type": "Smart Pod & Boutique Lodge",
-            "near_landmark": "Chinatown Heritage Quarter (Day 1 Hub)",
-            "distance": "120m from Chinatown MRT Station",
+            "id": "goa-d1-1",
+            "day": 1,
+            "day_hub": "North Goa Baga Hub",
+            "name": "The Baga Marina",
+            "type": "Beachfront Resort & Lodge",
+            "near_landmark": "Baga Beach & Tito's Lane (Day 1 Hub)",
+            "distance": "200m from Baga Beach",
             "rating": 4.8,
-            "reviews": 1720,
-            "image": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Air Purification AC", "Free High-Speed WiFi", "Smart Card Lockers", "Rain Showers"],
-            "base_price_inr": 4200,
+            "reviews": 1420,
+            "image": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Free High-Speed WiFi",
+                "AC",
+                "Swimming Pool",
+                "Beach Access",
+                "Poolside Bar"
+            ],
+            "base_price_inr": 2200,
             "sharing_options": [
-                {"type": "Single Smart Capsule Pod", "price_per_person_inr": 1400, "total_inr": 1400, "badge": "Smart Pod", "note": "Futuristic pod bed with orthopaedic mattress and privacy door"},
-                {"type": "2-Sharing Queen Pod Suite", "price_per_person_inr": 2100, "total_inr": 4200, "badge": "Couple Pod", "note": "Spacious double pod for couples with personal multimedia screen"}
+                {
+                    "type": "2-Sharing Deluxe Pool View",
+                    "price_per_person_inr": 1100,
+                    "total_inr": 2200,
+                    "badge": "Couple Choice",
+                    "note": "Steps away from Baga beach shacks and night flea markets"
+                }
+            ]
+        },
+        {
+            "id": "goa-d2-1",
+            "day": 2,
+            "day_hub": "Panaji & Fontainhas Heritage Hub",
+            "name": "Vivanta Goa Panaji",
+            "type": "Heritage Luxury Hotel",
+            "near_landmark": "Old Latin Quarter & Mandovi Riverfront (Day 2 Hub)",
+            "distance": "150m from Fontainhas Walk",
+            "rating": 4.8,
+            "reviews": 1890,
+            "image": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Rooftop Pool",
+                "Authentic Goan Restaurant",
+                "AC",
+                "WiFi"
+            ],
+            "base_price_inr": 4500,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Heritage Room",
+                    "price_per_person_inr": 2250,
+                    "total_inr": 4500,
+                    "badge": "Heritage Choice",
+                    "note": "Portuguese architectural design with riverfront promenade"
+                }
+            ]
+        },
+        {
+            "id": "goa-d3-1",
+            "day": 3,
+            "day_hub": "South Goa Palolem Hub",
+            "name": "Palolem Beach Resort",
+            "type": "Eco Beachfront Resort",
+            "near_landmark": "Palolem Crescent White Sand Beach (Day 3 Hub)",
+            "distance": "50m from Palolem Beachfront",
+            "rating": 4.9,
+            "reviews": 1320,
+            "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Direct Beach Access",
+                "Ayurvedic Spa",
+                "Open-Air Restaurant",
+                "WiFi"
+            ],
+            "base_price_inr": 2800,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Sea Cottage",
+                    "price_per_person_inr": 1400,
+                    "total_inr": 2800,
+                    "badge": "Beach View",
+                    "note": "Wooden cottage right on the serene Palolem beach sands"
+                }
             ]
         }
     ],
-
-    "bali": [
+    "hyderabad": [
         {
-            "id": "bal-lodge-1",
-            "name": "Ubud Rainforest Tropical Bamboo Eco Lodge",
-            "type": "Balinese Eco Lodge & Hostel",
-            "near_landmark": "Ubud Monkey Forest & Sacred Trail (Day 1)",
-            "distance": "300m from Ubud Center",
-            "rating": 4.9,
-            "reviews": 1410,
-            "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Infinity Jungle Pool", "Complimentary Tropical Fruit Breakfast", "Yoga Shala", "AC"],
-            "base_price_inr": 1600,
+            "id": "hyd-d1-1",
+            "day": 1,
+            "day_hub": "Old City Charminar Hub",
+            "name": "The Golkonda Hotel",
+            "type": "Luxury Heritage Hotel",
+            "near_landmark": "Banjara Hills & Charminar Old City (Day 1 Hub)",
+            "distance": "15 mins from Charminar & Laad Bazaar",
+            "rating": 4.7,
+            "reviews": 2400,
+            "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Mughlai Cuisine",
+                "Swimming Pool",
+                "AC",
+                "Free WiFi"
+            ],
+            "base_price_inr": 3200,
             "sharing_options": [
-                {"type": "4-Bed Bamboo Jungle Dorm Bed", "price_per_person_inr": 400, "total_inr": 1600, "badge": "Eco Jungle Sharing", "note": "Open-air bamboo architecture with mosquito net & pool access"},
-                {"type": "2-Sharing Private Ricefield Villa", "price_per_person_inr": 800, "total_inr": 1600, "badge": "Romantic Eco Villa", "note": "Carved teakwood double bed with private outdoor rain shower"}
+                {
+                    "type": "2-Sharing Executive Room",
+                    "price_per_person_inr": 1600,
+                    "total_inr": 3200,
+                    "badge": "Comfort Stay",
+                    "note": "Comfortable luxury hotel with easy Old City transit"
+                }
             ]
-        }
-    ],
-
-    "maldives": [
+        },
         {
-            "id": "mal-lodge-1",
-            "name": "Maafushi Island Turquoise Lagoon Beach Lodge",
-            "type": "Island Beachfront Lodge",
-            "near_landmark": "Maafushi Coral Lagoon (Day 1 Hub)",
-            "distance": "50m from Bikini Beach & Snorkel Point",
+            "id": "hyd-d2-1",
+            "day": 2,
+            "day_hub": "Golconda & Banjara Hills Hub",
+            "name": "Radisson Blu Plaza Hotel Banjara Hills",
+            "type": "5-Star Luxury Hotel",
+            "near_landmark": "Banjara Hills Road No. 6 & Golconda Fort",
+            "distance": "10 mins from Golconda Fort Citadel",
+            "rating": 4.8,
+            "reviews": 3100,
+            "image": "https://images.unsplash.com/photo-1572455044327-7348c1be7267?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Spa",
+                "Buffet Breakfast",
+                "Pool",
+                "Free WiFi"
+            ],
+            "base_price_inr": 4800,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Superior Room",
+                    "price_per_person_inr": 2400,
+                    "total_inr": 4800,
+                    "badge": "5-Star Luxury",
+                    "note": "Top rated hotel for leisure and culture tourists"
+                }
+            ]
+        },
+        {
+            "id": "hyd-d3-1",
+            "day": 3,
+            "day_hub": "Hussain Sagar Lakefront Hub",
+            "name": "Hyderabad Marriott Hotel & Convention Centre",
+            "type": "Lakefront Luxury Hotel",
+            "near_landmark": "Hussain Sagar Lake & Tank Bund Promenade",
+            "distance": "200m from Lakefront & Buddha Statue",
             "rating": 4.9,
-            "reviews": 1530,
-            "image": "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=600&q=80",
-            "amenities": ["Free Snorkeling Gear", "Direct White Sand Beach Access", "Tropical Breakfast", "AC", "WiFi"],
+            "reviews": 2800,
+            "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Aerial_view_of_Hussain_Sagar_from_Bansalipet.jpg/330px-Aerial_view_of_Hussain_Sagar_from_Bansalipet.jpg",
+            "amenities": [
+                "Lake View",
+                "Swimming Pool",
+                "Multiple Restaurants",
+                "WiFi"
+            ],
             "base_price_inr": 5200,
             "sharing_options": [
-                {"type": "4-Sharing Beachfront Lagoon Villa", "price_per_person_inr": 1300, "total_inr": 5200, "badge": "Group Lagoon Villa", "note": "2 interconnected bedrooms stepping right onto powdery white sand"},
-                {"type": "2-Sharing Turquoise Ocean View Deluxe", "price_per_person_inr": 2600, "total_inr": 5200, "badge": "Couple Ocean View", "note": "King bed with private balcony facing aquamarine lagoon waters"}
+                {
+                    "type": "2-Sharing Lakeview Deluxe",
+                    "price_per_person_inr": 2600,
+                    "total_inr": 5200,
+                    "badge": "Lake Panorama",
+                    "note": "Unobstructed view of Hussain Sagar and evening lights"
+                }
+            ]
+        }
+    ],
+    "vizag": [
+        {
+            "id": "viz-d1-1",
+            "day": 1,
+            "day_hub": "RK Beach & Submarine Hub",
+            "name": "Novotel Visakhapatnam Varun Beach",
+            "type": "5-Star Oceanfront Hotel",
+            "near_landmark": "RK Beach & INS Kursura Submarine (Day 1 Hub)",
+            "distance": "150m from Submarine Museum",
+            "rating": 4.9,
+            "reviews": 3400,
+            "image": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Infinity Ocean Pool",
+                "Direct Beach Walk",
+                "Seafood Restaurant",
+                "WiFi"
+            ],
+            "base_price_inr": 4500,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Ocean View Superior",
+                    "price_per_person_inr": 2250,
+                    "total_inr": 4500,
+                    "badge": "Oceanfront",
+                    "note": "Floor to ceiling glass windows facing Bay of Bengal waves"
+                }
+            ]
+        },
+        {
+            "id": "viz-d2-1",
+            "day": 2,
+            "day_hub": "Rushikonda Beach Hub",
+            "name": "Radisson Blu Resort Visakhapatnam",
+            "type": "Coastal Luxury Beach Resort",
+            "near_landmark": "Rushikonda Blue Flag Beach & Kailasagiri",
+            "distance": "250m from Rushikonda Water Sports",
+            "rating": 4.8,
+            "reviews": 1600,
+            "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Private Beach Walk",
+                "Pool",
+                "Spa",
+                "WiFi"
+            ],
+            "base_price_inr": 4200,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Resort Suite",
+                    "price_per_person_inr": 2100,
+                    "total_inr": 4200,
+                    "badge": "Resort Stay",
+                    "note": "Steps away from the serene golden sand beach"
+                }
+            ]
+        }
+    ],
+    "paris": [
+        {
+            "id": "par-d1-1",
+            "day": 1,
+            "day_hub": "Eiffel Tower 7th Arr. Hub",
+            "name": "Pullman Paris Tour Eiffel",
+            "type": "4-Star Iconic View Hotel",
+            "near_landmark": "Eiffel Tower & Champ de Mars (Day 1 Hub)",
+            "distance": "250m from Eiffel Tower",
+            "rating": 4.8,
+            "reviews": 2900,
+            "image": "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Direct Eiffel Tower View",
+                "Fitness Lounge",
+                "French Bistro",
+                "WiFi"
+            ],
+            "base_price_inr": 12500,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Eiffel View Balcony",
+                    "price_per_person_inr": 6250,
+                    "total_inr": 12500,
+                    "badge": "Iconic View",
+                    "note": "Balcony facing the illuminated Eiffel Tower"
+                }
+            ]
+        },
+        {
+            "id": "par-d2-1",
+            "day": 2,
+            "day_hub": "Louvre Museum 1st Arr. Hub",
+            "name": "Hotel Regina Louvre",
+            "type": "Historic Luxury Palace Hotel",
+            "near_landmark": "Place des Pyramides & Louvre Museum",
+            "distance": "150m from Louvre Pyramid",
+            "rating": 4.9,
+            "reviews": 1820,
+            "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Louvre_Museum_Wikimedia_Commons.jpg/330px-Louvre_Museum_Wikimedia_Commons.jpg",
+            "amenities": [
+                "Museum View",
+                "French Haute Cuisine",
+                "Belle \u00c9poque Decor",
+                "WiFi"
+            ],
+            "base_price_inr": 14000,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Louvre Heritage Room",
+                    "price_per_person_inr": 7000,
+                    "total_inr": 14000,
+                    "badge": "Palace Hotel",
+                    "note": "Overlooking Tuileries Garden and the Louvre Museum"
+                }
+            ]
+        }
+    ],
+    "dubai": [
+        {
+            "id": "dub-d1-1",
+            "day": 1,
+            "day_hub": "Downtown Dubai Burj Hub",
+            "name": "Address Downtown",
+            "type": "5-Star Landmark Skyscraper Hotel",
+            "near_landmark": "Burj Khalifa & Dubai Mall (Day 1 Hub)",
+            "distance": "200m from Burj Khalifa",
+            "rating": 4.9,
+            "reviews": 3200,
+            "image": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Burj Khalifa View",
+                "Fountain Show View",
+                "Infinity Pool",
+                "WiFi"
+            ],
+            "base_price_inr": 11000,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Fountain View Deluxe",
+                    "price_per_person_inr": 5500,
+                    "total_inr": 11000,
+                    "badge": "Burj View",
+                    "note": "Unmatched view of the world's tallest skyscraper"
+                }
+            ]
+        },
+        {
+            "id": "dub-d2-1",
+            "day": 2,
+            "day_hub": "Dubai Marina & JBR Beach Hub",
+            "name": "Stella Di Mare Dubai Marina Hotel",
+            "type": "5-Star Waterfront Hotel",
+            "near_landmark": "JBR The Walk & Dubai Marina Harbor",
+            "distance": "250m from JBR Beach",
+            "rating": 4.8,
+            "reviews": 2400,
+            "image": "https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=600&q=80",
+            "amenities": [
+                "Rooftop Bar",
+                "Spa",
+                "Marina View",
+                "Free WiFi"
+            ],
+            "base_price_inr": 8500,
+            "sharing_options": [
+                {
+                    "type": "2-Sharing Marina View Suite",
+                    "price_per_person_inr": 4250,
+                    "total_inr": 8500,
+                    "badge": "Marina View",
+                    "note": "Direct access to yachts and JBR beachfront promenade"
+                }
             ]
         }
     ]
@@ -568,25 +649,65 @@ def get_destination_hotel_key(destination_name: str) -> str:
     if "switzerland" in d or "zurich" in d or "interlaken" in d: return "switzerland"
     return "goa"
 
-def generate_booking_redirect_url(hotel_name: str, destination: str, is_international: bool = False) -> Dict[str, str]:
+def get_day_specific_city(destination_name: str, day_number: int = 1) -> str:
+    """Resolves the precise destination city for the given day number."""
+    k = (destination_name or "").lower()
+    if "switzerland" in k:
+        if day_number == 1: return "Zurich"
+        if day_number == 2: return "Lucerne"
+        if day_number == 3: return "Interlaken"
+        if day_number == 4: return "Grindelwald"
+        return "Lauterbrunnen"
+    if "kerala" in k:
+        if day_number == 1: return "Kochi"
+        if day_number == 2: return "Alleppey"
+        return "Munnar"
+    if "kashmir" in k:
+        if day_number == 1: return "Srinagar"
+        if day_number == 2: return "Gulmarg"
+        return "Pahalgam"
+    if "delhi" in k or "agra" in k:
+        if day_number <= 2: return "Agra"
+        return "New Delhi"
+    if "vizag" in k or "visakhapatnam" in k:
+        if day_number in (3, 4): return "Araku Valley"
+        return "Visakhapatnam"
+    if "goa" in k: return "Goa"
+    if "hyderabad" in k: return "Hyderabad"
+    if "paris" in k: return "Paris"
+    if "dubai" in k: return "Dubai"
+    if "tokyo" in k: return "Tokyo"
+    if "rome" in k: return "Rome"
+    if "london" in k: return "London"
+    if "manali" in k: return "Manali"
+    if "jaipur" in k: return "Jaipur"
+    return "Zurich"
+
+def generate_booking_redirect_url(hotel_name: str, city_name: str, is_international: bool = False) -> Dict[str, str]:
     """
-    Generates real partner booking search links pre-populated with hotel name and destination city.
+    Generates real partner booking search links pre-populated with hotel name and exact city.
     MakeMyTrip is configured as the primary partner booking portal.
     """
-    clean_dest = destination.split("(")[0].split(",")[0].strip()
-    query = f"{hotel_name} {clean_dest}"
-    encoded_query = urllib.parse.quote_plus(query)
-    encoded_dest = urllib.parse.quote_plus(clean_dest)
+    clean_city = (city_name or "Zurich").split("(")[0].split(",")[0].strip()
+    encoded_city = urllib.parse.quote_plus(clean_city)
+    clean_hotel = hotel_name.split("(")[0].strip()
+    encoded_hotel = urllib.parse.quote_plus(clean_hotel)
 
-    # MakeMyTrip URL pre-populated with hotel and destination city
-    makemytrip_url = f"https://www.makemytrip.com/hotels/hotel-listing/?searchText={urllib.parse.quote_plus(hotel_name + ' ' + clean_dest)}&city={encoded_dest}"
-    google_hotels_url = f"https://www.google.com/travel/hotels?q={urllib.parse.quote_plus(hotel_name + ' ' + clean_dest + ' makemytrip')}"
-    booking_url = f"https://www.booking.com/searchresults.html?ss={encoded_query}"
-    agoda_url = f"https://www.agoda.com/search?text={encoded_query}"
+    # 1. Direct hotel listing inside the verified city on MakeMyTrip
+    makemytrip_url = f"https://www.makemytrip.com/hotels/hotel-listing/?city={encoded_city}&searchText={encoded_hotel}"
+    
+    # 2. City-wide hotel listing on MakeMyTrip (100% guarantee never 0 results)
+    makemytrip_city_url = f"https://www.makemytrip.com/hotels/hotel-listing/?city={encoded_city}"
+    
+    # 3. Google Hotels Meta Search
+    google_hotels_url = f"https://www.google.com/travel/hotels?q={urllib.parse.quote_plus(clean_hotel + ' ' + clean_city + ' MakeMyTrip')}"
+    booking_url = f"https://www.booking.com/searchresults.html?ss={urllib.parse.quote_plus(clean_hotel + ' ' + clean_city)}"
+    agoda_url = f"https://www.agoda.com/search?text={urllib.parse.quote_plus(clean_hotel + ' ' + clean_city)}"
 
     return {
         "primary_url": makemytrip_url,
         "makemytrip_url": makemytrip_url,
+        "makemytrip_city_url": makemytrip_city_url,
         "google_hotels_url": google_hotels_url,
         "booking_url": booking_url,
         "agoda_url": agoda_url
@@ -598,9 +719,9 @@ def get_day1_hotels_for_destination(destination_name: str, day_number: int = 1) 
     and generates dynamic MakeMyTrip booking links.
     """
     key = get_destination_hotel_key(destination_name)
-    hotels = HOTELS_DATABASE.get(key, HOTELS_DATABASE["goa"])
+    hotels = HOTELS_DATABASE.get(key, HOTELS_DATABASE.get("switzerland", []))
     is_intl = key in ["switzerland", "paris", "dubai", "tokyo", "rome", "london", "singapore", "bali", "new_york"]
-    clean_city = destination_name.split("(")[0].split(",")[0].strip()
+    target_city = get_day_specific_city(destination_name, day_number)
 
     # Filter for hotels matching requested day
     day_hotels = [h for h in hotels if h.get("day") == day_number]
@@ -614,7 +735,8 @@ def get_day1_hotels_for_destination(destination_name: str, day_number: int = 1) 
     for h in day_hotels:
         item = dict(h)
         item["day_number"] = day_number
-        item["booking_links"] = generate_booking_redirect_url(item["name"], clean_city, is_international=is_intl)
+        item["city"] = target_city
+        item["booking_links"] = generate_booking_redirect_url(item["name"], target_city, is_international=is_intl)
         result.append(item)
 
     return result

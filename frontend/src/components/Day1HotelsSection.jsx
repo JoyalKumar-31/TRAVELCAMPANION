@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getHotelsForDay, getDestinationKey, generateBookingLinks } from '../data/destinationData';
+import { getHotelsForDay, getDestinationKey, getDaySpecificCity, generateBookingLinks } from '../data/destinationData';
 
 // Hub names by destination and day index for quick visual labeling
 const DAY_HUBS_DIRECTORY = {
@@ -93,15 +93,16 @@ export default function Day1HotelsSection({
 
   // Retrieve current day's real lodges
   const dayNumber = selectedDayIdx + 1;
+  const currentDayCity = getDaySpecificCity(destKey, dayNumber);
   const hubList = DAY_HUBS_DIRECTORY[destKey] || DAY_HUBS_DIRECTORY["switzerland"];
   const currentHub = hubList[selectedDayIdx % hubList.length] || {
     day: dayNumber,
-    hub: `${cleanCity} Day ${dayNumber} Staying Hub`,
+    hub: `${currentDayCity} Day ${dayNumber} Staying Hub`,
     landmarks: `Day ${dayNumber} scheduled destinations & activities`
   };
 
   // Get matching hotels for the selected day
-  const displayedHotels = getHotelsForDay(destKey, dayNumber, cleanCity, isIntl);
+  const displayedHotels = getHotelsForDay(destKey, dayNumber, currentDayCity, isIntl);
 
   function handleSelectDay(idx) {
     setSelectedDayIdx(idx);
@@ -133,7 +134,7 @@ export default function Day1HotelsSection({
             </div>
             <div>
               <h3 className="font-heading font-black text-slate-900 text-lg sm:text-xl">
-                Verified Lodges & Stays Near Day {dayNumber} ({currentHub.hub.split(" Hub")[0]})
+                Verified Lodges & Stays Near Day {dayNumber} · {currentDayCity} ({currentHub.hub.split(" Hub")[0]})
               </h3>
               <p className="text-xs text-slate-500 font-medium">
                 Handpicked real lodges, heritage inns & chalets located right beside <strong>Day {dayNumber}</strong> stops ({currentHub.landmarks}) with MakeMyTrip booking & sharing rates
@@ -206,12 +207,15 @@ export default function Day1HotelsSection({
             const currentSelectedIdx = selectedSharingMap[h.id] !== undefined ? selectedSharingMap[h.id] : 0;
             const activeSharing = h.sharing_options?.[currentSelectedIdx] || h.sharing_options?.[0];
 
-            // MakeMyTrip verified direct hotel search URL
+            // MakeMyTrip verified direct hotel search URL & city listing fallback
             const mmtSearchUrl = h.booking_links?.makemytrip_url || 
-              `https://www.makemytrip.com/hotels/hotel-listing/?searchText=${encodeURIComponent(h.name + " " + cleanCity)}&city=${encodeURIComponent(cleanCity)}`;
+              `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(currentDayCity)}&searchText=${encodeURIComponent(h.name)}`;
             
+            const mmtCityUrl = h.booking_links?.makemytrip_city_url || 
+              `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(currentDayCity)}`;
+
             const googleHotelsUrl = h.booking_links?.google_hotels_url || 
-              `https://www.google.com/travel/hotels?q=${encodeURIComponent(h.name + " " + cleanCity + " makemytrip")}`;
+              `https://www.google.com/travel/hotels?q=${encodeURIComponent(h.name + " " + currentDayCity + " makemytrip")}`;
 
             return (
               <div 
@@ -324,15 +328,15 @@ export default function Day1HotelsSection({
                   </div>
 
                   {/* Booking & Partner Action Buttons */}
-                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <div className="flex flex-wrap items-center gap-2.5 pt-2">
                     
-                    {/* PRIMARY ACTION: DIRECT MAKEMYTRIP BOOKING BUTTON */}
+                    {/* PRIMARY ACTION: DIRECT MAKEMYTRIP PROPERTY BOOKING */}
                     <a 
                       href={mmtSearchUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="px-5 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-md shadow-red-500/25 transition flex items-center gap-2 cursor-pointer group"
-                      title={`Book ${h.name} on MakeMyTrip (${cleanCity})`}
+                      className="px-4 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-md shadow-red-500/25 transition flex items-center gap-2 cursor-pointer group"
+                      title={`Book ${h.name} on MakeMyTrip in ${currentDayCity}`}
                     >
                       <span className="w-5 h-5 rounded-md bg-white text-red-600 font-black text-[9px] flex items-center justify-center shadow-xs">
                         MMT
@@ -341,9 +345,21 @@ export default function Day1HotelsSection({
                       <i className="fa-solid fa-arrow-up-right-from-square text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
                     </a>
 
-                    {/* SECONDARY ACTION: ROOM SHARING & INSTANT RESERVATION */}
+                    {/* DIRECT MAKEMYTRIP CITY HOTELS (100% Guaranteed to Never Filter Out) */}
+                    <a 
+                      href={mmtCityUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title={`Browse all verified hotels in ${currentDayCity} on MakeMyTrip`}
+                    >
+                      <i className="fa-solid fa-city text-rose-500 text-[11px]"></i>
+                      <span>All {currentDayCity} Hotels (MMT)</span>
+                    </a>
+
+                    {/* ROOM SHARING & INSTANT RESERVATION */}
                     <button 
-                      onClick={() => onOpenBookingModal(h)}
+                      onClick={() => onOpenBookingModal({ ...h, city: currentDayCity })}
                       className="px-4 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 font-extrabold text-xs rounded-xl border border-brand-200 transition flex items-center gap-2 cursor-pointer active:scale-95"
                     >
                       <i className="fa-solid fa-bed text-brand-600"></i>
@@ -355,7 +371,8 @@ export default function Day1HotelsSection({
                       href={googleHotelsUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="px-3.5 py-2.5 text-slate-500 hover:text-slate-900 text-xs font-bold transition flex items-center gap-1.5"
+                      className="px-3 py-2.5 text-slate-500 hover:text-slate-900 text-xs font-bold transition flex items-center gap-1.5"
+                      title={`Compare ${h.name} prices across MakeMyTrip, Agoda & Booking.com`}
                     >
                       <i className="fa-brands fa-google text-[12px] text-blue-500"></i>
                       <span>Compare Rates</span>
