@@ -77,6 +77,7 @@ class AdaptiveReplannerAgent:
     ) -> Tuple[Activity, list]:
         from schemas import AlternativeOption
         from real_places_db import get_real_destination_data
+        from persona_data import DESTINATION_PERSONA_RAIN_REPLACEMENTS
         dtype = disruption.disruption_type.lower()
         clean_city = destination.split(",")[0].strip()
         accessibility = original.accessibility_features
@@ -160,6 +161,7 @@ class AdaptiveReplannerAgent:
         self, destination: str, disruption: DisruptionEvent, original: Activity, budget_cap: float
     ) -> Activity:
         from real_places_db import get_real_destination_data
+        from persona_data import DESTINATION_PERSONA_RAIN_REPLACEMENTS
         dtype = disruption.disruption_type.lower()
         unique_id = f"sub_{uuid.uuid4().hex[:6]}"
         accessibility = original.accessibility_features
@@ -277,6 +279,7 @@ class AdaptiveReplannerAgent:
         """
         import uuid
         from real_places_db import get_real_destination_data
+        from persona_data import DESTINATION_PERSONA_RAIN_REPLACEMENTS
         
         target_day = None
         for day in itinerary.days:
@@ -293,7 +296,16 @@ class AdaptiveReplannerAgent:
 
         # 1. Fetch rain replacements for affected day
         replacements_data = []
-        if "day2_rain_replacements" in real_data and len(real_data["day2_rain_replacements"]) >= 3:
+        traveler_type = (getattr(itinerary, "traveler_type", "friends") or "friends").lower()
+        matched_rain_dest = None
+        for k in DESTINATION_PERSONA_RAIN_REPLACEMENTS:
+            if k in destination_name:
+                matched_rain_dest = k
+                break
+
+        if matched_rain_dest and traveler_type in DESTINATION_PERSONA_RAIN_REPLACEMENTS[matched_rain_dest]:
+            replacements_data = DESTINATION_PERSONA_RAIN_REPLACEMENTS[matched_rain_dest][traveler_type]
+        elif "day2_rain_replacements" in real_data and len(real_data["day2_rain_replacements"]) >= 3:
             replacements_data = real_data["day2_rain_replacements"]
         elif "indoor_replacements" in real_data and len(real_data["indoor_replacements"]) >= 1:
             slots = ["Morning", "Afternoon", "Evening"]

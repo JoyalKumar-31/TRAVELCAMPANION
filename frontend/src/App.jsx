@@ -441,6 +441,7 @@ export default function App() {
                   isLoading={isPlanning}
                   hasComparisonData={Boolean(comparisonData)}
                   onOpenComparison={() => setIsComparisonOpen(true)}
+                  travelerType={travelerType}
                 />
               </ErrorBoundary>
             </div>

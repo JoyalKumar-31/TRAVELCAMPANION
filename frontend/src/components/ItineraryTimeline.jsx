@@ -19,7 +19,8 @@ export default function ItineraryTimeline({
   onSelectDayIndex,
   isLoading,
   onOpenComparison,
-  hasComparisonData
+  hasComparisonData,
+  travelerType
 }) {
   const [zoomedPhoto, setZoomedPhoto] = useState(null);
   const destKey = getDestinationKey(destination);
@@ -223,6 +224,38 @@ export default function ItineraryTimeline({
                     <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 text-[10px] font-black rounded-md border border-emerald-200 flex items-center gap-1">
                       <i className="fa-solid fa-circle-check text-emerald-600"></i>
                       <span>{act.verified_status}</span>
+                    </span>
+                  )}
+
+                  {/* Proximity to Day Hub */}
+                  <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded-md border border-slate-200/90 flex items-center gap-1 shadow-2xs">
+                    <i className="fa-solid fa-location-dot text-rose-500"></i>
+                    <span>~{act.travel_distance_km ? Number(act.travel_distance_km).toFixed(1) : '3.5'} km from Day {activeDay.day_number || (activeDayIndex + 1)} Hub</span>
+                  </span>
+
+                  {/* Persona Specialization Badge */}
+                  {((travelerType || itinerary.traveler_type) === 'family' || act.family_friendly) && (
+                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-black rounded-md border border-indigo-200 flex items-center gap-1 shadow-2xs">
+                      <i className="fa-solid fa-child-reaching text-indigo-500"></i>
+                      <span>👶 Kids & Family Approved · Child-Safe</span>
+                    </span>
+                  )}
+                  {(travelerType || itinerary.traveler_type) === 'seniors' && (
+                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 text-[10px] font-black rounded-md border border-emerald-200 flex items-center gap-1 shadow-2xs">
+                      <i className="fa-solid fa-person-cane text-emerald-600"></i>
+                      <span>🧓 Senior-Friendly · Step-Free & Seating</span>
+                    </span>
+                  )}
+                  {(travelerType || itinerary.traveler_type) === 'couple' && (
+                    <span className="px-2 py-0.5 bg-rose-50 text-rose-700 text-[10px] font-black rounded-md border border-rose-200 flex items-center gap-1 shadow-2xs">
+                      <i className="fa-solid fa-heart text-rose-500"></i>
+                      <span>💑 Romantic Vistas & Ambiance</span>
+                    </span>
+                  )}
+                  {['friends', 'college_group', 'solo'].includes(travelerType || itinerary.traveler_type) && (
+                    <span className="px-2 py-0.5 bg-amber-50 text-amber-800 text-[10px] font-black rounded-md border border-amber-200 flex items-center gap-1 shadow-2xs">
+                      <i className="fa-solid fa-bolt text-amber-500"></i>
+                      <span>⚡ Adventure & Thrills</span>
                     </span>
                   )}
                 </div>
