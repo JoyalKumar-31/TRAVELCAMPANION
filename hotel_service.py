@@ -686,7 +686,7 @@ def get_day_specific_city(destination_name: str, day_number: int = 1) -> str:
 def generate_booking_redirect_url(hotel_name: str, city_name: str, is_international: bool = False) -> Dict[str, str]:
     """
     Generates real partner booking search links pre-populated with hotel name and exact city.
-    MakeMyTrip is configured as the primary partner booking portal.
+    Booking.com is configured as the primary partner booking portal.
     """
     clean_city = (city_name or "Zurich").split("(")[0].split(",")[0].strip()
     encoded_city = urllib.parse.quote_plus(clean_city)
@@ -702,10 +702,12 @@ def generate_booking_redirect_url(hotel_name: str, city_name: str, is_internatio
     # 3. Google Hotels Meta Search
     google_hotels_url = f"https://www.google.com/travel/hotels?q={urllib.parse.quote_plus(clean_hotel + ' ' + clean_city + ' MakeMyTrip')}"
     booking_url = f"https://www.booking.com/searchresults.html?ss={urllib.parse.quote_plus(clean_hotel + ' ' + clean_city)}"
+    booking_city_url = f"https://www.booking.com/searchresults.html?ss={encoded_city}"
     agoda_url = f"https://www.agoda.com/search?text={urllib.parse.quote_plus(clean_hotel + ' ' + clean_city)}"
 
     return {
-        "primary_url": makemytrip_url,
+        "primary_url": booking_url,
+        "booking_city_url": booking_city_url,
         "makemytrip_url": makemytrip_url,
         "makemytrip_city_url": makemytrip_city_url,
         "google_hotels_url": google_hotels_url,
@@ -802,7 +804,7 @@ def generate_fallback_hotels_for_city(city_name: str, day_number: int = 1) -> Li
 def get_day1_hotels_for_destination(destination_name: str, day_number: int = 1) -> List[Dict[str, Any]]:
     """
     Retrieves authentic lodges & hotels near Day X staying hub with room sharing options
-    and generates dynamic MakeMyTrip booking links for ANY destination worldwide.
+    and generates dynamic Booking.com booking links for ANY destination worldwide.
     """
     key = get_destination_hotel_key(destination_name)
     hotels = HOTELS_DATABASE.get(key)

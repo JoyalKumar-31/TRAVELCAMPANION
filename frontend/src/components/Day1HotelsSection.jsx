@@ -283,11 +283,11 @@ export default function Day1HotelsSection({
             };
 
             // MakeMyTrip verified direct hotel search URL & city listing fallback
-            const mmtSearchUrl = h.booking_links?.makemytrip_url || 
-              `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(currentDayCity)}&searchText=${encodeURIComponent(h.name || '')}`;
+            const bookingSearchUrl = h.booking_links?.booking_url || 
+              `https://www.booking.com/searchresults.html?ss=${encodeURIComponent((h.name || '') + ' ' + currentDayCity)}`;
             
-            const mmtCityUrl = h.booking_links?.makemytrip_city_url || 
-              `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(currentDayCity)}`;
+            const bookingCityUrl = h.booking_links?.booking_city_url || 
+              `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(currentDayCity)}`;
 
             const googleHotelsUrl = h.booking_links?.google_hotels_url || 
               `https://www.google.com/travel/hotels?q=${encodeURIComponent((h.name || '') + " " + currentDayCity + " makemytrip")}`;
@@ -407,29 +407,29 @@ export default function Day1HotelsSection({
                     
                     {/* PRIMARY ACTION: DIRECT MAKEMYTRIP PROPERTY BOOKING */}
                     <a 
-                      href={mmtSearchUrl} 
+                      href={bookingSearchUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="px-4 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-md shadow-red-500/25 transition flex items-center gap-2 cursor-pointer group"
-                      title={`Book ${h.name} on MakeMyTrip in ${currentDayCity}`}
+                      className="px-4 py-2.5 bg-[#003580] hover:bg-[#00224f] active:scale-95 text-white font-black text-xs rounded-xl shadow-md shadow-blue-900/25 transition flex items-center gap-2 cursor-pointer group"
+                      title={`Book ${h.name} on Booking.com in ${currentDayCity}`}
                     >
-                      <span className="w-5 h-5 rounded-md bg-white text-red-600 font-black text-[9px] flex items-center justify-center shadow-xs">
-                        MMT
+                      <span className="w-5 h-5 rounded-md bg-white text-[#003580] font-black text-[10px] flex items-center justify-center shadow-xs">
+                        B.
                       </span>
-                      <span>Book on MakeMyTrip</span>
+                      <span>Book on Booking.com</span>
                       <i className="fa-solid fa-arrow-up-right-from-square text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
                     </a>
 
                     {/* DIRECT MAKEMYTRIP CITY HOTELS (100% Guaranteed to Never Filter Out) */}
                     <a 
-                      href={mmtCityUrl} 
+                      href={bookingCityUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title={`Browse all verified hotels in ${currentDayCity} on MakeMyTrip`}
+                      className="px-3.5 py-2.5 bg-blue-50 hover:bg-blue-100 text-[#003580] font-bold text-xs rounded-xl border border-blue-200 transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title={`Browse all verified hotels in ${currentDayCity} on Booking.com`}
                     >
-                      <i className="fa-solid fa-city text-rose-500 text-[11px]"></i>
-                      <span>All {currentDayCity} Hotels (MMT)</span>
+                      <i className="fa-solid fa-city text-[#003580] text-[11px]"></i>
+                      <span>All {currentDayCity} Hotels (Booking.com)</span>
                     </a>
 
                     {/* ROOM SHARING & INSTANT RESERVATION */}

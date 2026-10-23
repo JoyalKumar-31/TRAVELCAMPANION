@@ -176,6 +176,7 @@ export function generateBookingLinks(hotelName, cityName, isIntl = false) {
   const query = encodeURIComponent(`${hotelName} ${cleanCity}`);
 
   // 1. MakeMyTrip Direct Property Search within City (Validates 100% on MakeMyTrip)
+  const bookingCity = `https://www.booking.com/searchresults.html?ss=${encodedCity}`;
   const makemytrip = `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodedCity}&searchText=${encodedHotel}`;
   
   // 2. MakeMyTrip All Hotels in City
@@ -188,11 +189,13 @@ export function generateBookingLinks(hotelName, cityName, isIntl = false) {
   const booking = `https://www.booking.com/searchresults.html?ss=${query}`;
 
   return {
-    primary_url: makemytrip,
+    primary_url: booking,
+    booking_url: booking,
+    booking_city_url: bookingCity,
     makemytrip_url: makemytrip,
     makemytrip_city_url: mmtCity,
     google_hotels_url: google,
-    booking_url: booking
+    booking_partner: "Booking.com"
   };
 }
 

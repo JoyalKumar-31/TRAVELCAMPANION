@@ -20,14 +20,14 @@ export default function HotelBookingModal({
   const isDorm = selectedOption?.type?.toLowerCase().includes("dorm") || selectedOption?.type?.toLowerCase().includes("bed");
   const totalPrice = isDorm ? (selectedOption.price_per_person_inr * guests) : selectedOption.total_inr;
 
-  // MakeMyTrip verified direct booking URL & city listing guarantee URL
-  const mmtBookingUrl = hotel.booking_links?.makemytrip_url || 
-    `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(cleanCity)}&searchText=${encodeURIComponent(hotel.name)}`;
+  // Booking.com verified direct booking URL & city listing guarantee URL
+  const bookingUrl = hotel.booking_links?.booking_url || 
+    `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name + " " + cleanCity)}`;
 
-  const mmtCityUrl = hotel.booking_links?.makemytrip_city_url || 
-    `https://www.makemytrip.com/hotels/hotel-listing/?city=${encodeURIComponent(cleanCity)}`;
+  const bookingCityUrl = hotel.booking_links?.booking_city_url || 
+    `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(cleanCity)}`;
 
-  const partnerPortalUrl = mmtBookingUrl;
+  const partnerPortalUrl = bookingUrl;
 
   function handleConfirmBooking() {
     const bookingId = "BK-LDG-" + Math.floor(10000 + Math.random() * 90000);
@@ -163,29 +163,29 @@ export default function HotelBookingModal({
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
-                {/* PRIMARY ACTION: DIRECT MAKEMYTRIP LINK */}
+                {/* PRIMARY ACTION: DIRECT BOOKING.COM LINK */}
                 <a 
-                  href={mmtBookingUrl} 
+                  href={bookingUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-full sm:flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black text-xs rounded-xl shadow-lg shadow-red-600/25 transition flex items-center justify-center gap-2 cursor-pointer group"
+                  className="w-full sm:flex-1 py-3 px-4 bg-[#003580] hover:bg-[#00224f] active:scale-95 text-white font-black text-xs rounded-xl shadow-lg shadow-blue-900/25 transition flex items-center justify-center gap-2 cursor-pointer group"
                 >
-                  <span className="w-5 h-5 rounded-md bg-white text-red-600 font-black text-[9px] flex items-center justify-center shadow-xs">
-                    MMT
+                  <span className="w-5 h-5 rounded-md bg-white text-[#003580] font-black text-[10px] flex items-center justify-center shadow-xs">
+                    B.
                   </span>
-                  <span>Book on MakeMyTrip ({cleanCity})</span>
+                  <span>Book on Booking.com ({cleanCity})</span>
                   <i className="fa-solid fa-arrow-up-right-from-square text-[11px] group-hover:translate-x-0.5 transition-transform"></i>
                 </a>
 
-                {/* SECONDARY ACTION: ALL CITY HOTELS ON MAKEMYTRIP */}
+                {/* SECONDARY ACTION: ALL CITY HOTELS ON BOOKING.COM */}
                 <a 
-                  href={mmtCityUrl} 
+                  href={bookingCityUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto py-3 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-                  title={`Browse all available hotels in ${cleanCity} on MakeMyTrip`}
+                  className="w-full sm:w-auto py-3 px-3.5 bg-blue-50 hover:bg-blue-100 text-[#003580] font-bold text-xs rounded-xl border border-blue-200 transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                  title={`Browse all available hotels in ${cleanCity} on Booking.com`}
                 >
-                  <i className="fa-solid fa-city text-rose-500 text-[11px]"></i>
+                  <i className="fa-solid fa-city text-[#003580] text-[11px]"></i>
                   <span>All {cleanCity} Hotels</span>
                 </a>
 
@@ -206,7 +206,7 @@ export default function HotelBookingModal({
               </div>
               <h4 className="font-extrabold text-slate-900 text-lg">Lodge Reservation Confirmed!</h4>
               <p className="text-xs text-slate-500 max-w-md mx-auto">
-                Your stay has been recorded. You can also view or manage the live room listing directly on MakeMyTrip.
+                Your stay has been recorded. You can also view or manage the live room listing directly on Booking.com.
               </p>
 
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 max-w-md mx-auto text-left text-xs space-y-2">
@@ -230,22 +230,22 @@ export default function HotelBookingModal({
 
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2.5">
                 <a 
-                  href={mmtBookingUrl} 
+                  href={bookingUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2.5 bg-[#003580] hover:bg-[#00224f] text-white font-black text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer"
                 >
-                  <span className="w-4 h-4 rounded bg-white text-red-600 font-black text-[8px] flex items-center justify-center">MMT</span>
-                  <span>Open on MakeMyTrip Portal</span>
+                  <span className="w-4 h-4 rounded bg-white text-[#003580] font-black text-[8px] flex items-center justify-center">B.</span>
+                  <span>Open on Booking.com Portal</span>
                   <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                 </a>
                 <a 
-                  href={mmtCityUrl} 
+                  href={bookingCityUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl border border-rose-200 transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-[#003580] font-bold text-xs rounded-xl border border-blue-200 transition flex items-center gap-1.5 cursor-pointer"
                 >
-                  <i className="fa-solid fa-city text-rose-500 text-[11px]"></i>
+                  <i className="fa-solid fa-city text-[#003580] text-[11px]"></i>
                   <span>All {cleanCity} Hotels</span>
                 </a>
                 <button 

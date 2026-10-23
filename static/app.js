@@ -503,7 +503,7 @@ function generateClientBookingLinks(hotelName, destName, isIntl) {
   const booking = `https://www.booking.com/searchresults.html?ss=${q}`;
   const google = `https://www.google.com/travel/hotels?q=${q}`;
   return {
-    primary_url: isIntl ? booking : mmt,
+    primary_url: booking,
     google_hotels_url: google,
     makemytrip_url: mmt,
     booking_url: booking

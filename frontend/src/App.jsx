@@ -446,7 +446,7 @@ export default function App() {
               </ErrorBoundary>
             </div>
 
-            {/* Verified Lodges & Hotels Section (Multi-Day with Direct MakeMyTrip Booking) */}
+            {/* Verified Lodges & Hotels Section (Multi-Day with Direct Booking.com Link) */}
             <div id="day1-hotels-section">
               <ErrorBoundary title="Verified Lodges & Stays Notice">
                 <Day1HotelsSection 
